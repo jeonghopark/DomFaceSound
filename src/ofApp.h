@@ -137,5 +137,9 @@ public:
     void modelPosition();
     
     void processingImage();
+    bool bImageProcess;
+    
+    void errorLengthChanged(int & _f);
+
     
 };

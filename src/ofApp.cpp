@@ -29,9 +29,6 @@ void ofApp::setup(){
     mesh.enableColors();
     mesh.enableIndices();
     
-    cout << mesh.getCentroid() << endl;
-
-    
     modelIndex = 0;
     
     glEnable(GL_POINT_SMOOTH);
@@ -71,10 +68,12 @@ void ofApp::setup(){
     //    ofSoundStreamSetup( 2, 2, this, SAMPLE_RATE, INITIAL_BUFFER_SIZE, 4 );
     //    ofSoundStreamStop();
     
+    errorLength.addListener(this, &ofApp::errorLengthChanged);
+
     imageFormat.addListener(this, &ofApp::imageFormatButtonClick);
     
     gui.setup();
-    gui.ofxBaseGui::setPosition( ofGetWidth() - 230, 10 );
+    gui.setPosition( ofGetWidth() - 230, 10 );
     gui.add(frameRate.setup("FrameRate", " "));
     gui.add(modelSelect.setup("Model Select"));
     gui.add(speed.setup("speed", 1.0, 0.0, 10.0) );
@@ -112,6 +111,11 @@ void ofApp::setup(){
     
     bGuiView = true;
     imageProcessCapture = false;
+    bImageProcess = false;
+    
+    
+    
+
 }
 
 
@@ -190,11 +194,26 @@ void ofApp::update(){
     cam.end();
     originalFbo.end();
 
-    processingImagFbo.begin();
-    ofClear(0,0);
-    ofSetColor(255);
-    processingImage();
-    processingImagFbo.end();
+    
+    if (imageProcessView) {
+        processingImagFbo.begin();
+        ofClear(0,0);
+        ofSetColor(255);
+        processingImage();
+        processingImagFbo.end();
+    }
+    
+    
+    if(imageProcessView && bImageProcess) {
+        bImageProcess = false;
+        imageCapture();
+    }
+    
+    if (!imageProcessView) {
+        bImageProcess = true;
+    }
+
+    
     
 //    if (imageProcessView) {
 //        ofSetColor(255);
@@ -204,8 +223,22 @@ void ofApp::update(){
 //        
 //        bufferFbo = originalFbo;
 //    }
-
+    
+    
 }
+
+
+//--------------------------------------------------------------
+void ofApp::errorLengthChanged(int & _f){
+    
+    imageCapture();
+    errorLength.removeListener(this, &ofApp::errorLengthChanged);
+    
+}
+
+
+
+
 
 //--------------------------------------------------------------
 void ofApp::draw(){
@@ -296,6 +329,7 @@ void ofApp::draw(){
         bImageCapture = false;
         imageCapture();
     }
+    
 
     
     interfaceView();
@@ -652,6 +686,7 @@ void ofApp::mousePressed(int x, int y, int button){
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
     playerHead->mouseReleased(x,y,button);
+    
 }
 
 //--------------------------------------------------------------
