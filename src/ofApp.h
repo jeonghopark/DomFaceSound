@@ -95,7 +95,10 @@ public:
     int numPoint;
 
     int modelIndex;
-    ofFbo fbo;
+    
+    ofFbo processingImagFbo;
+    ofFbo originalFbo;
+    
     ofTexture texScreen;
     ofRectangle captureRect;
     void captureFunction();
@@ -132,5 +135,7 @@ public:
     ofSoundStream soundStream;
     
     void modelPosition();
+    
+    void processingImage();
     
 };

@@ -3,10 +3,10 @@
 //--------------------------------------------------------------
 PlayerHead::PlayerHead(){
 	cout << "hello";
-	x1 = 10;
-	y1 = 10;
-	x2 = 10;
-	y2 = 522;
+	x1 = 0;
+	y1 = 0;
+	x2 = 0;
+	y2 = 512;
 	
 	dragging1=false;
 	dragging2=false;
@@ -29,10 +29,10 @@ void PlayerHead::mousePressed(int x, int y, int button) {
 	//	dragging = true;
 	//}
 	
-	if(distance(x,x1,y,y1)<10){
+	if(distance(x,x1,y,y1)<0){
 		dragging1 = true;
 	}
-	if(distance(x,x2,y,y2)<10){
+	if(distance(x,x2,y,y2)<0){
 		dragging2 = true;
 	}
 }
@@ -40,28 +40,28 @@ void PlayerHead::mousePressed(int x, int y, int button) {
 void PlayerHead::mouseDragged(int x, int y, int button) {
 	if(dragging1){
 		if(x<10){
-			x1 = fmax(x, 10);
+			x1 = fmax(x, 0);
 		}else {
-			x1 = fmin(x, ofGetWidth()-10);
+			x1 = fmin(x, ofGetWidth());
 		}
 
 		if (y<10) {
-			y1 = fmax(y, 10);
+			y1 = fmax(y, 0);
 		}else {
-			y1 = fmin(y, 522);
+			y1 = fmin(y, 512);
 		}
 	}
 	if(dragging2){
-		if(x<10){
-			x2 = fmax(x, 10);
+		if(x<0){
+			x2 = fmax(x, 0);
 		}else {
-			x2 = fmin(x, ofGetWidth()-10);
+			x2 = fmin(x, ofGetWidth());
 		}
 		
-		if (y<10) {
-			y2 = fmax(y, 10);
+		if (y<0) {
+			y2 = fmax(y, 0);
 		}else {
-			y2 = fmin(y, 522);
+			y2 = fmin(y, 512);
 		}
 	}
 }

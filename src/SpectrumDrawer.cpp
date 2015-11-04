@@ -24,7 +24,7 @@ void SpectrumDrawer::update(){
     
     ofPushStyle();
     ofSetColor(10, 10, 10., 120);
-    ofDrawRectangle(10, 10, ofGetWidth()-20, spectrumHeight);
+    ofDrawRectangle(0, 0, ofGetWidth(), spectrumHeight);
     ofPopStyle();
     
     if(playing){
@@ -54,14 +54,14 @@ void SpectrumDrawer::update(){
         glBindTexture(GL_TEXTURE_2D, texture1);
         glBegin(GL_QUADS);
         
-        float ratio = (float)(ofGetWidth()-20)/(float)width;
+        float ratio = (float)(ofGetWidth())/(float)width;
         float offXRatio = (player-offsetX)/(float) width;
         
         float offYRatio = (offsetY)/(float) width;
-        glTexCoord2f(0.0 + offYRatio, 0.0 + offXRatio);		glVertex3i(10, 10, 0);
-        glTexCoord2f(0.0 + offYRatio, ratio + offXRatio);		glVertex3i(ofGetWidth()-10, 10, 0);
-        glTexCoord2f(1.0 + offYRatio, ratio + offXRatio);		glVertex3i(ofGetWidth()-10, spectrumHeight+10, 0);
-        glTexCoord2f(1.0 + offYRatio, 0.0 + offXRatio);		glVertex3i(10, spectrumHeight+10, 0);
+        glTexCoord2f(0.0 + offYRatio, 0.0 + offXRatio);		glVertex3i(0, 0, 0);
+        glTexCoord2f(0.0 + offYRatio, ratio + offXRatio);		glVertex3i(ofGetWidth(), 0, 0);
+        glTexCoord2f(1.0 + offYRatio, ratio + offXRatio);		glVertex3i(ofGetWidth(), spectrumHeight, 0);
+        glTexCoord2f(1.0 + offYRatio, 0.0 + offXRatio);		glVertex3i(0, spectrumHeight+10, 0);
         
         glEnd();
         glFlush();
@@ -70,11 +70,11 @@ void SpectrumDrawer::update(){
     }else {
         //keszulo spektrumot rajzolunk
         glBegin(GL_POINTS);
-        for (int x=0; x<ofGetWidth()-20; x++) {
+        for (int x=0; x<ofGetWidth(); x++) {
             for (int y=0; y<spectrumHeight; y++) {
                 float c;
-                if (width>ofGetWidth()-20) {
-                    c = pixels[x+(width-ofGetWidth()+20)][y];
+                if (width>ofGetWidth()) {
+                    c = pixels[x+(width-ofGetWidth())][y];
                 } else {
                     c = pixels[x][y];
                 }
@@ -85,7 +85,7 @@ void SpectrumDrawer::update(){
                 //	ofSetColor(ertek, pow(ertek/255.0,3)*255.0, pow(ertek/255.0,5)*255.0,255);
                 
                 glColor3f(c,c,c);
-                glVertex2f(x+10, y+10);
+                glVertex2f(x, y);
             }
         }
         glEnd();
@@ -359,8 +359,8 @@ void SpectrumDrawer::stop(){
 float SpectrumDrawer::getAmp(float x, float y){
     float amp=0;
     if(height>0){
-        x=x-10;
-        y=y-10;
+        x=x;
+        y=y;
         
         amp = getPixel(x, y);
         
