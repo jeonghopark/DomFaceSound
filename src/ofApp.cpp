@@ -68,8 +68,6 @@ void ofApp::setup(){
     //    ofSoundStreamSetup( 2, 2, this, SAMPLE_RATE, INITIAL_BUFFER_SIZE, 4 );
     //    ofSoundStreamStop();
     
-    errorLength.addListener(this, &ofApp::errorLengthChanged);
-
     imageFormat.addListener(this, &ofApp::imageFormatButtonClick);
     
     gui.setup();
@@ -95,6 +93,10 @@ void ofApp::setup(){
     gui.add(fadeLength.setup("FadeLength", 1, 0, 1));
     gui.add(volume.setup("Volume", 10, 0, 20));
     
+    
+    errorLength.addListener(this, &ofApp::errorLengthChanged);
+    
+    
     texScreen.allocate(captureW, captureH, GL_RGB);
     captureImage.allocate(captureW, captureH, OF_IMAGE_COLOR);
     texProcessScreen.allocate(captureW, captureH, GL_RGB);
@@ -113,10 +115,21 @@ void ofApp::setup(){
     imageProcessCapture = false;
     bImageProcess = false;
     
-    
-    
+    bImageProcessView = false;
 
 }
+
+
+
+
+//--------------------------------------------------------------
+void ofApp::errorLengthChanged(int & _m){
+    
+    imageCapture();
+
+}
+
+
 
 
 //--------------------------------------------------------------
@@ -181,7 +194,6 @@ void ofApp::update(){
     
     frameRate = ofToString(ofGetFrameRate(),1);
     
-    
     originalFbo.begin();
     cam.begin();
 
@@ -195,12 +207,15 @@ void ofApp::update(){
     originalFbo.end();
 
     
-    if (imageProcessView) {
+    if (imageProcessView && !bImageProcessView) {
         processingImagFbo.begin();
-        ofClear(0,0);
+        ofClear(0, 0);
         ofSetColor(255);
         processingImage();
         processingImagFbo.end();
+        bImageProcessView = true;
+    } else if (imageProcessView != false) {
+        bImageProcessView = false;
     }
     
     
@@ -227,14 +242,6 @@ void ofApp::update(){
     
 }
 
-
-//--------------------------------------------------------------
-void ofApp::errorLengthChanged(int & _f){
-    
-    imageCapture();
-    errorLength.removeListener(this, &ofApp::errorLengthChanged);
-    
-}
 
 
 
@@ -266,7 +273,7 @@ void ofApp::draw(){
     spectrum->update();
     
     if (imageProcessView) {
-        captureProcessImage.draw( 0, 0, captureW, captureH );
+        processingImagFbo.draw(0, 0);
     } else {
         originalFbo.draw(0, 0);
     }
@@ -378,41 +385,23 @@ void ofApp::processingImage(){
     unsigned char * _rawPixels = _pProcess.getData();
     
     int _length = errorLength;
-    if (errorMath) {
-        for (int j=0; j<captureH; j++) {
-            for (int i=0; i<captureW-_length; i+=_length) {
-                int _index = i + j * (captureW);
-                
-                r = _rawPixels[_index*3];
-                g = _rawPixels[_index*3+ 1];
-                b = _rawPixels[_index*3+ 2];
-                
-                for (int k=0; k<_length; k++) {
-                    _pProcess.setColor(i+k, j, ofColor( ((r+g+b)/3.0/85.0)*brightness*(ofMap(k,0,_length,1,fadeLength)) ) );
-                }
+    for (int j=0; j<captureH; j++) {
+        for (int i=0; i<captureW-_length; i+=_length) {
+            int _index = i + j * (captureW);
+            
+            r = _rawPixels[_index*3];
+            g = _rawPixels[_index*3+ 1];
+            b = _rawPixels[_index*3+ 2];
+            
+            for (int k=0; k<_length; k++) {
+                _pProcess.setColor(i+k, j, ofColor( ((r+g+b)/3.0/85.0)*brightness*(ofMap(k,0,_length,1,fadeLength)) ) );
             }
         }
-        
-        for (int j=0; j<captureH; j++) {
-            for (int i=captureW-_length; i<captureW; i++) {
-                _pProcess.setColor(i, j, ofColor(0) );
-            }
-        }
-        
-    } else {
-        for (int j=0; j<captureH; j++) {
-            for (int i=0; i<captureW; i++) {
-                int _index = i + j * captureW;
-                r = _rawPixels[_index*3];
-                g = _rawPixels[_index*3+ 1];
-                b = _rawPixels[_index*3+ 2];
-                
-                if ((r+g+b)/3.0 > brightness) {
-                    _pProcess.setColor(i, j, ofColor( ((r+g+b)/3.0/85.0)*brightness,255));
-                } else {
-                    _pProcess.setColor(i, j, ofColor(0,255));
-                }
-            }
+    }
+    
+    for (int j=0; j<captureH; j++) {
+        for (int i=captureW-_length; i<captureW; i++) {
+            _pProcess.setColor(i, j, ofColor(0) );
         }
     }
     
@@ -555,7 +544,7 @@ void ofApp::audioRequested 	(float * output, int bufferSize, int nChannels){
                     //remainder = phases[n] - floor(phases[n]);
                     //wave+=(float) ((1-remainder) * sineBuffer[1+ (long) phases[n]] + remainder * sineBuffer[2+(long) phases[n]])*amp[n];
                     
-                    wave+=(sineBuffer[1+ (long) phases[n]])*amp[n];
+                    wave += ( sineBuffer[1 + (long) phases[n]] ) * amp[n];
                 }
             }
             

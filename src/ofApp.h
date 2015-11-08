@@ -139,7 +139,8 @@ public:
     void processingImage();
     bool bImageProcess;
     
-    void errorLengthChanged(int & _f);
+    void errorLengthChanged(int & _m);
 
+    bool bImageProcessView;
     
 };

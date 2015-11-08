@@ -359,8 +359,8 @@ void SpectrumDrawer::stop(){
 float SpectrumDrawer::getAmp(float x, float y){
     float amp=0;
     if(height>0){
-        x=x;
-        y=y;
+        x=x-10;
+        y=y-10;
         
         amp = getPixel(x, y);
         
