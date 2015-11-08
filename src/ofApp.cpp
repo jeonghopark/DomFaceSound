@@ -224,8 +224,9 @@ void ofApp::update(){
         imageCapture();
     }
     
-    if (!imageProcessView) {
+    if (!imageProcessView && !bImageProcess) {
         bImageProcess = true;
+        imageCapture();
     }
 
     
@@ -289,12 +290,12 @@ void ofApp::draw(){
 
     ofPushMatrix();
     
-    ofTranslate(playerHead->x1, 0);
+    ofTranslate(playerHead->x1, -10);
     
     ofPushStyle();
     if ( spectrum->playing ) {
         vector< pair <float, float> > points = playerHead -> getPoints(BIT);
-        for(int n = 0;n<BIT;n++){
+        for(int n = 0; n < BIT; n++){
             ofSetColor(0, 255, 0, 120);
             amp[n] = (amp[n]*line + spectrum -> getAmp(points[n].first, points[n].second))/(line+1);
             hertzScale[n] = int(spectrum -> getFreq(points[n].second));
@@ -310,7 +311,7 @@ void ofApp::draw(){
 //                        }
 //            ofRect(n*1,0 + 532, 1, amp[n]*10.0);
             
-            ofDrawRectangle( 0, n*1, amp[n]*30.0, 1 );
+            ofDrawRectangle( 0, n * 1, amp[n] * 30.0, 1 );
             
         }
     }
@@ -540,6 +541,7 @@ void ofApp::audioRequested 	(float * output, int bufferSize, int nChannels){
                     phases[n] += 512./(44100.0/(hertzScale[n]));
                     
                     if ( phases[n] >= 511 ) phases[n] -=512;
+                    if ( phases[n] < 0 ) phases[n] = 0;
                     
                     //remainder = phases[n] - floor(phases[n]);
                     //wave+=(float) ((1-remainder) * sineBuffer[1+ (long) phases[n]] + remainder * sineBuffer[2+(long) phases[n]])*amp[n];
