@@ -4,7 +4,16 @@ float sines[514]={0,0.012268,0.024536,0.036804,0.049042,0.06131,0.073547,0.08578
 };
 
 
+
+//--------------------------------------------------------------
 void ofApp::setup(){
+    
+#ifdef DEBUG
+
+#else
+    ofSetDataPathRoot("../Resources/data");
+#endif
+
     
     ofEnableAlphaBlending();
     ofSetupScreen();
@@ -18,14 +27,12 @@ void ofApp::setup(){
     
     faceImg.load("domFace01.jpg");
     
-    float _scale1 = 1.0;
-    model1.setScale(_scale1, _scale1, _scale1);
-    model1.loadModel("domFace01.obj");
-    model1.setPosition( 0, 0, 0 );
-    model1.setScaleNormalization(true);
+    figureModel.loadModel("domFace01.obj");
+    figureModel.setPosition( 0, 0, 0 );
+    figureModel.setScaleNormalization(true);
     
     mesh.setMode(OF_PRIMITIVE_POINTS);
-    mesh = model1.getMesh(0);
+    mesh = figureModel.getMesh(0);
     mesh.enableColors();
     mesh.enableIndices();
     
@@ -34,7 +41,7 @@ void ofApp::setup(){
     glEnable(GL_POINT_SMOOTH);
     glPointSize(1);
     
-    ofVec3f _cMesh = mesh.getCentroid();
+    ofVec3f _cMesh = mesh.getCentroid() + ofVec3f(0, 1.5, 3);
     
     numPoint = mesh.getNumVertices();
     for (int i=0; i<numPoint; i++) {
@@ -638,7 +645,7 @@ void ofApp::guiSetting(){
 //--------------------------------------------------------------
 void ofApp::close() {
     
-    model1.clear();
+    figureModel.clear();
     mesh.clear();
     spectrum->pause();
     spectrum->stop();
@@ -705,91 +712,91 @@ void ofApp::modelPosition(){
         
         switch ( modelIndex ) {
             case 0:
-                model1.loadModel("domFace01.obj");
+                figureModel.loadModel("domFace01.obj");
                 faceImg.load("domFace01.jpg");
                 cam.setDistance(30);
                 cam.setPosition(-11, -19, 21);
                 cam.setOrientation(ofVec3f(74,-87,3));
                 break;
             case 1:
-                model1.loadModel("domFace02.obj");
+                figureModel.loadModel("domFace02.obj");
                 faceImg.load("domFace02.jpg");
                 cam.setDistance(25);
                 cam.setPosition(-12, -15, 15);
                 cam.setOrientation(ofVec3f(69,-88,0));
                 break;
             case 2:
-                model1.loadModel("domFace03.obj");
+                figureModel.loadModel("domFace03.obj");
                 faceImg.load("domFace03.jpg");
                 cam.setDistance(28);
                 cam.setPosition(-10, -21, 16);
                 cam.setOrientation(ofVec3f(75,-88,0));
                 break;
             case 3:
-                model1.loadModel("domFace04.obj");
+                figureModel.loadModel("domFace04.obj");
                 faceImg.load("domFace04.jpg");
                 cam.setDistance(31);
                 cam.setPosition(-13, -22, 17);
                 cam.setOrientation(ofVec3f(75,-88,0));
                 break;
             case 4:
-                model1.loadModel("domFace05.obj");
+                figureModel.loadModel("domFace05.obj");
                 faceImg.load("domFace05.jpg");
                 cam.setDistance(28);
                 cam.setPosition(-16, 23, -4);
                 cam.setOrientation(ofVec3f(-107,85,-5));
                 break;
             case 5:
-                model1.loadModel("domFace06.obj");
+                figureModel.loadModel("domFace06.obj");
                 faceImg.load("domFace06.jpg");
                 cam.setDistance(31);
                 cam.setPosition(-19, -19, 15);
                 cam.setOrientation(ofVec3f(62,-87,0));
                 break;
             case 6:
-                model1.loadModel("domFace07.obj");
+                figureModel.loadModel("domFace07.obj");
                 faceImg.load("domFace07.jpg");
                 cam.setDistance(31);
                 cam.setPosition(-19,-20, 13);
                 cam.setOrientation(ofVec3f(60,-91,-4));
                 break;
             case 7:
-                model1.loadModel("domFace08.obj");
+                figureModel.loadModel("domFace08.obj");
                 faceImg.load("domFace08.jpg");
                 cam.setDistance(31);
                 cam.setPosition(-18,-21, 15);
                 cam.setOrientation(ofVec3f(65,-91,-4));
                 break;
             case 8:
-                model1.loadModel("domFace09.obj");
+                figureModel.loadModel("domFace09.obj");
                 faceImg.load("domFace09.jpg");
                 cam.setDistance(31);
                 cam.setPosition(-16,-22, 13);
                 cam.setOrientation(ofVec3f(70,-89,0));
                 break;
             case 9:
-                model1.loadModel("domFace10.obj");
+                figureModel.loadModel("domFace10.obj");
                 faceImg.load("domFace10.jpg");
                 cam.setDistance(27);
                 cam.setPosition(-9,25, 1);
                 cam.setOrientation(ofVec3f(-92,97,4));
                 break;
             case 10:
-                model1.loadModel("domFace11.obj");
+                figureModel.loadModel("domFace11.obj");
                 faceImg.load("domFace11.jpg");
                 cam.setDistance(31);
                 cam.setPosition(-15,-18, 21);
                 cam.setOrientation(ofVec3f(60,-79,3));
                 break;
             case 11:
-                model1.loadModel("domFace12.obj");
+                figureModel.loadModel("domFace12.obj");
                 faceImg.load("domFace12.jpg");
                 cam.setDistance(31);
                 cam.setPosition(-24,-11, 16);
                 cam.setOrientation(ofVec3f(41,-90,0));
                 break;
             case 12:
-                model1.loadModel("domFace13.obj");
+                figureModel.loadModel("domFace13.obj");
                 faceImg.load("domFace13.jpg");
                 cam.setDistance(31);
                 cam.setPosition(-17,-21, 16);
@@ -800,7 +807,7 @@ void ofApp::modelPosition(){
                 break;
         }
         
-        mesh = model1.getMesh(0);
+        mesh = figureModel.getMesh(0);
         
         numPoint = mesh.getNumVertices();
         
