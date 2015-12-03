@@ -46,11 +46,12 @@ void ofApp::setup(){
     numPoint = mesh.getNumVertices();
     for (int i=0; i<numPoint; i++) {
         mesh.setVertex(i, mesh.getVertex(i) - _centerMesh);
-        mesh.addColor(ofColor(255));
+        mesh.addColor(ofColor(255,10));
     }
     
     cam.setAutoDistance(false);
     cam.setDistance(10);
+    cam.setFarClip(0);
     //    cam.setPosition(-10, -17, 20);
     //    cam.setOrientation(ofVec3f(75,-88,0));
     
@@ -77,7 +78,7 @@ void ofApp::setup(){
     
     
     
-    maxHertz = 8000;
+    maxHertz = 6000;
     spectrum = new SpectrumDrawer( 1, maxHertz );
     //    spectrum->loadImageSpectrum("model4_downup_contrast.jpg");
     
@@ -98,7 +99,7 @@ void ofApp::setup(){
     gui.add(openf.setup( "Open Picture", false) );
     gui.add(maxHz.setup( "Spectrum Max HZ", 5000, 300.0, 8000.0) );
     gui.add(minHz.setup( "Spectrum Min HZ", 50, 1.0, 200.0) );
-    gui.add(lineSize.setup( "LINE", 13.0, 0.0, 20.0) );
+    gui.add(lineSize.setup( "LINE", 5.0, 0.0, 20.0) );
     gui.add(reset.setup("Reset!", ""));
     gui.add(imageFormat.setup("Image Format Quad/Land", true) );
     gui.add(returnZero.setup("Return Zero"));
@@ -227,7 +228,8 @@ void ofApp::update(){
     ofRotateY(90);
     ofClear(0,0);
     
-    ofSetColor(255);
+    ofSetColor(150);
+    mesh.drawWireframe();
     mesh.drawVertices();
     
     cam.end();
@@ -320,38 +322,7 @@ void ofApp::draw(){
     
     
     
-    ofPushMatrix();
-    
-    ofTranslate(playerHead->x1, -10);
-    
-    ofPushStyle();
-    
-    if ( spectrum->playing ) {
-        vector< pair <float, float> > points = playerHead -> getPoints(BIT);
-        for(int n = 0; n < BIT; n++){
-            ofSetColor(0, 255, 0, 120);
-            amp[n] = (amp[n]*line + spectrum -> getAmp(points[n].first, points[n].second))/(line+1);
-            hertzScale[n] = int(spectrum -> getFreq(points[n].second));
-            
-            //            float a = (outp[n]-outp[n+1]);
-            //            if (a > .5 or a < - .5) {
-            //                ofSetColor(255, 0, 0,255);
-            //            }else {
-            //                ofSetColor(255, 255, 255,255);
-            //            }
-            //                        if (n<INITIAL_BUFFER_SIZE) {
-            //                            ofLine(n*2,outp[n]*10.0 + 20 + 532 ,n*2+2,outp[n+1]*10.0 + 20 + 532);
-            //                        }
-            //            ofRect(n*1,0 + 532, 1, amp[n]*10.0);
-            
-            ofDrawRectangle( 0, n * 1, amp[n] * 30.0, 1 );
-            
-        }
-    }
-    
-    ofPopStyle();
-    
-    ofPopMatrix();
+    drawVolumeLevel();
     
     
     if (bGuiView) {
@@ -384,6 +355,48 @@ void ofApp::draw(){
 }
 
 
+
+//--------------------------------------------------------------
+void ofApp::drawVolumeLevel(){
+    
+    ofPushMatrix();
+    ofTranslate(playerHead->x1, -10);
+    
+    ofPushStyle();
+    ofSetColor(255, 255, 255, 100);
+    
+    if ( spectrum->playing ) {
+        vector< pair <float, float> > points = playerHead -> getPoints(BIT);
+        for(int n = 0; n < BIT; n++){
+            amp[n] = (amp[n]*line + spectrum -> getAmp(points[n].first, points[n].second))/(line+1);
+            hertzScale[n] = int(spectrum -> getFreq(points[n].second));
+            
+            //            float a = (outp[n]-outp[n+1]);
+            //            if (a > .5 or a < - .5) {
+            //                ofSetColor(255, 0, 0,255);
+            //            }else {
+            //                ofSetColor(255, 255, 255,255);
+            //            }
+            //                        if (n<INITIAL_BUFFER_SIZE) {
+            //                            ofLine(n*2,outp[n]*10.0 + 20 + 532 ,n*2+2,outp[n+1]*10.0 + 20 + 532);
+            //                        }
+            //            ofRect(n*1,0 + 532, 1, amp[n]*10.0);
+            
+//            ofDrawRectangle( 0, n * 1, amp[n] * 100.0, 1 );
+//            ofDrawRectangle( 0, n * 1, amp[n] * 100.0, 1 );
+            
+            float _levelSize = 120;
+            ofDrawLine( 0, n * 1, amp[n] * _levelSize, n * 1 );
+            ofDrawLine( 0, n * 1, -amp[n] * _levelSize, n * 1 );
+            
+        }
+    }
+    
+    ofPopStyle();
+    
+    ofPopMatrix();
+    
+}
 
 
 //--------------------------------------------------------------

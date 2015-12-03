@@ -143,4 +143,10 @@ public:
 
     bool bImageProcessView;
     
+    
+    
+    //
+    void drawVolumeLevel();
+    
+    
 };
