@@ -39,11 +39,11 @@ public:
     
     int	maxHertz;
     
-    double sineBuffer[514];
     
     float remainder;
     float wave;
     
+    double sineBuffer[514];
     float outp[INITIAL_BUFFER_SIZE];
     float amp[BIT];
     int hertzScale[BIT];

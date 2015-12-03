@@ -9,11 +9,11 @@ float sines[514]={0,0.012268,0.024536,0.036804,0.049042,0.06131,0.073547,0.08578
 void ofApp::setup(){
     
 #ifdef DEBUG
-
+    
 #else
     ofSetDataPathRoot("../Resources/data");
 #endif
-
+    
     
     ofEnableAlphaBlending();
     ofSetupScreen();
@@ -38,21 +38,21 @@ void ofApp::setup(){
     
     modelIndex = 0;
     
-    glEnable(GL_POINT_SMOOTH);
-    glPointSize(1);
+    //    glEnable(GL_POINT_SMOOTH);
+    //    glPointSize(1);
     
-    ofVec3f _cMesh = mesh.getCentroid() + ofVec3f(0, 1.5, 3);
+    ofVec3f _centerMesh = mesh.getCentroid() + ofVec3f(0, 1.5, 3);
     
     numPoint = mesh.getNumVertices();
     for (int i=0; i<numPoint; i++) {
-        mesh.setVertex(i, mesh.getVertex(i) - ofVec3f(_cMesh.x, _cMesh.y, _cMesh.z));
+        mesh.setVertex(i, mesh.getVertex(i) - _centerMesh);
         mesh.addColor(ofColor(255));
     }
     
     cam.setAutoDistance(false);
     cam.setDistance(10);
-//    cam.setPosition(-10, -17, 20);
-//    cam.setOrientation(ofVec3f(75,-88,0));
+    //    cam.setPosition(-10, -17, 20);
+    //    cam.setOrientation(ofVec3f(75,-88,0));
     
     
     captureW = ofGetWidth();
@@ -60,9 +60,22 @@ void ofApp::setup(){
     
     line = 0;
     
-    for (int i = 0; i < 514 ; i ++) {
+    for (int i=0; i<514; i++) {
         sineBuffer[i] = sines[i];
     }
+    
+    for (int i=0; i<INITIAL_BUFFER_SIZE ; i++) {
+        outp[i] = 0;
+    }
+    
+    for (int i=0; i<BIT ; i++) {
+        amp[i] = 0;
+        hertzScale[i] = 0;
+        phases[i] = 0;
+    }
+    
+    
+    
     
     maxHertz = 8000;
     spectrum = new SpectrumDrawer( 1, maxHertz );
@@ -70,10 +83,10 @@ void ofApp::setup(){
     
     playerHead = new PlayerHead();
     
+    cout << soundStream.getDeviceList() << endl;
+    
     soundStream.setDeviceID(1);
     soundStream.setup(this, 2, 0, SAMPLE_RATE, INITIAL_BUFFER_SIZE, 4 );
-    //    ofSoundStreamSetup( 2, 2, this, SAMPLE_RATE, INITIAL_BUFFER_SIZE, 4 );
-    //    ofSoundStreamStop();
     
     imageFormat.addListener(this, &ofApp::imageFormatButtonClick);
     
@@ -123,7 +136,7 @@ void ofApp::setup(){
     bImageProcess = false;
     
     bImageProcessView = false;
-
+    
 }
 
 
@@ -133,14 +146,14 @@ void ofApp::setup(){
 void ofApp::errorLengthChanged(int & _m){
     
     imageCapture();
-
+    
 }
 
 
 
 
 //--------------------------------------------------------------
-void ofApp::imageFormatButtonClick(bool &_b){
+void ofApp::imageFormatButtonClick(bool & _b){
     
     //    captureImage.clear();
     //    texScreen.clear();
@@ -162,7 +175,7 @@ void ofApp::captureFunction(){
 //--------------------------------------------------------------
 void ofApp::update(){
     
-//    texScreen.loadScreenData( ofGetHeight()-BIT-10, 10, captureW, captureH);
+    //    texScreen.loadScreenData( ofGetHeight()-BIT-10, 10, captureW, captureH);
     
     
     modelPosition();
@@ -173,9 +186,11 @@ void ofApp::update(){
     spectrum->minHz = minHz;
     line = lineSize;
     
+    
     if(openf) {
         openFile();
     }
+    
     
     if(reset){
         spectrum->speed = 3;
@@ -183,6 +198,7 @@ void ofApp::update(){
         spectrum->minHz = 1;
         reset=false;
     }
+    
     
     if (spectrum->playing) {
         playerHead->x1 += speed;
@@ -194,16 +210,20 @@ void ofApp::update(){
         }
     }
     
+    
     if (returnZero) {
         playerHead->x1 = 0;
         playerHead->x2 = 0;
     }
     
+    
     frameRate = ofToString(ofGetFrameRate(),1);
+    
+    
     
     originalFbo.begin();
     cam.begin();
-
+    
     ofRotateY(90);
     ofClear(0,0);
     
@@ -212,7 +232,8 @@ void ofApp::update(){
     
     cam.end();
     originalFbo.end();
-
+    
+    
     
     if (imageProcessView && !bImageProcessView) {
         processingImagFbo.begin();
@@ -235,17 +256,17 @@ void ofApp::update(){
         bImageProcess = true;
         imageCapture();
     }
-
     
     
-//    if (imageProcessView) {
-//        ofSetColor(255);
-//        processingImage();
-//        //        captureProcessImage.draw( 0, 0, captureW, captureH );
-//    } else {
-//        
-//        bufferFbo = originalFbo;
-//    }
+    
+    //    if (imageProcessView) {
+    //        ofSetColor(255);
+    //        processingImage();
+    //        //        captureProcessImage.draw( 0, 0, captureW, captureH );
+    //    } else {
+    //
+    //        bufferFbo = originalFbo;
+    //    }
     
     
 }
@@ -258,25 +279,25 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-//    ofEnableDepthTest();
-//    ofEnablePointSprites();
+    //    ofEnableDepthTest();
+    //    ofEnablePointSprites();
     
-//    cam.begin();
-//    
-//    ofPushMatrix();
-//    if (pointView) pointDraw();
-//    ofPopMatrix();
-//    
-//    
-////    ofPushMatrix();
-////    if (zDepthShape) zDepthShapeDraw();
-////    ofPopMatrix();
-//    
-//    cam.end();
+    //    cam.begin();
+    //
+    //    ofPushMatrix();
+    //    if (pointView) pointDraw();
+    //    ofPopMatrix();
+    //
+    //
+    ////    ofPushMatrix();
+    ////    if (zDepthShape) zDepthShapeDraw();
+    ////    ofPopMatrix();
+    //
+    //    cam.end();
+    
+    
     
     ofPushMatrix();
-    
-
     
     spectrum->update();
     
@@ -285,21 +306,26 @@ void ofApp::draw(){
     } else {
         originalFbo.draw(0, 0);
     }
-
-//    if (imageProcessView) {
-//        processingImage();
-//    }
     
-//    captureProcessImage.draw( 0, 0, captureW, captureH );
-
-
+    //    if (imageProcessView) {
+    //        processingImage();
+    //    }
+    
+    //    captureProcessImage.draw( 0, 0, captureW, captureH );
+    
+    
     playerHead->update();
-
+    
+    ofPopMatrix();
+    
+    
+    
     ofPushMatrix();
     
     ofTranslate(playerHead->x1, -10);
     
     ofPushStyle();
+    
     if ( spectrum->playing ) {
         vector< pair <float, float> > points = playerHead -> getPoints(BIT);
         for(int n = 0; n < BIT; n++){
@@ -307,37 +333,35 @@ void ofApp::draw(){
             amp[n] = (amp[n]*line + spectrum -> getAmp(points[n].first, points[n].second))/(line+1);
             hertzScale[n] = int(spectrum -> getFreq(points[n].second));
             
-//            float a = (outp[n]-outp[n+1]);
-//            if (a > .5 or a < - .5) {
-//                ofSetColor(255, 0, 0,255);
-//            }else {
-//                ofSetColor(255, 255, 255,255);
-//            }
-//                        if (n<INITIAL_BUFFER_SIZE) {
-//                            ofLine(n*2,outp[n]*10.0 + 20 + 532 ,n*2+2,outp[n+1]*10.0 + 20 + 532);
-//                        }
-//            ofRect(n*1,0 + 532, 1, amp[n]*10.0);
+            //            float a = (outp[n]-outp[n+1]);
+            //            if (a > .5 or a < - .5) {
+            //                ofSetColor(255, 0, 0,255);
+            //            }else {
+            //                ofSetColor(255, 255, 255,255);
+            //            }
+            //                        if (n<INITIAL_BUFFER_SIZE) {
+            //                            ofLine(n*2,outp[n]*10.0 + 20 + 532 ,n*2+2,outp[n+1]*10.0 + 20 + 532);
+            //                        }
+            //            ofRect(n*1,0 + 532, 1, amp[n]*10.0);
             
             ofDrawRectangle( 0, n * 1, amp[n] * 30.0, 1 );
             
         }
     }
+    
     ofPopStyle();
-    ofPopMatrix();
     
     ofPopMatrix();
     
-    //
-    //
+    
     if (bGuiView) {
         ofDisablePointSprites();
         ofDisableDepthTest();
         gui.draw();
     }
-
     
-//    edgeDraw();
-
+    
+    //    edgeDraw();
     
     
     if(bImageCapture) {
@@ -345,23 +369,17 @@ void ofApp::draw(){
         imageCapture();
     }
     
-
     
     interfaceView();
     
     if (!spectrum->playing) {
-
     }
-
-    
     
     
     if (modelSelect) {
         imageCapture();
     }
     
-    
-
     
 }
 
@@ -387,25 +405,30 @@ void ofApp::processingImage(){
     
     originalFbo.readToPixels(_pProcess);
     
-    int r;
-    int g;
-    int b;
+    
+    int _r;
+    int _g;
+    int _b;
+    
     unsigned char * _rawPixels = _pProcess.getData();
+    
     
     int _length = errorLength;
     for (int j=0; j<captureH; j++) {
         for (int i=0; i<captureW-_length; i+=_length) {
             int _index = i + j * (captureW);
             
-            r = _rawPixels[_index*3];
-            g = _rawPixels[_index*3+ 1];
-            b = _rawPixels[_index*3+ 2];
+            _r = _rawPixels[_index*3];
+            _g = _rawPixels[_index*3+ 1];
+            _b = _rawPixels[_index*3+ 2];
+            int _sumColor = _r + _g + _b;
             
             for (int k=0; k<_length; k++) {
-                _pProcess.setColor(i+k, j, ofColor( ((r+g+b)/3.0/85.0)*brightness*(ofMap(k,0,_length,1,fadeLength)) ) );
+                _pProcess.setColor(i+k, j, ofColor( ((_sumColor)/3.0/85.0)*brightness*(ofMap(k,0,_length,1,fadeLength)) ) );
             }
         }
     }
+    
     
     for (int j=0; j<captureH; j++) {
         for (int i=captureW-_length; i<captureW; i++) {
@@ -414,18 +437,18 @@ void ofApp::processingImage(){
     }
     
     
-//        _pProcess.mirror(true, false);
-
+    //        _pProcess.mirror(true, false);
+    
     captureProcessImage.setFromPixels(_pProcess.getData(), _pProcess.getWidth(), _pProcess.getHeight(), OF_IMAGE_COLOR);
     
     float _size = 1;
     captureProcessImage.draw( 0, 0, captureW*_size, captureH*_size );
     
-//        faceImg.draw( ofGetWidth()-faceImg.getWidth()*0.25, captureH*_size, faceImg.getWidth()*0.25, faceImg.getHeight()*0.25 );
-
+    //        faceImg.draw( ofGetWidth()-faceImg.getWidth()*0.25, captureH*_size, faceImg.getWidth()*0.25, faceImg.getHeight()*0.25 );
+    
     ofPopStyle();
     ofPopMatrix();
-
+    
 }
 
 
@@ -433,28 +456,28 @@ void ofApp::processingImage(){
 //--------------------------------------------------------------
 void ofApp::pointDraw(){
     
-    ofPushMatrix();
-    ofPushStyle();
-    
-    glPointSize(1);
-    
-    ofSetColor(255);
-    mesh.drawVertices();
-    
-
-    
-    ofPopStyle();
-    ofPopMatrix();
-    
-    
+    //    ofPushMatrix();
+    //    ofPushStyle();
+    //
+    //    glPointSize(1);
+    //
+    //    ofSetColor(255);
+    //    mesh.drawVertices();
+    //
+    //    ofPopStyle();
+    //    ofPopMatrix();
     
 }
+
+
 
 //--------------------------------------------------------------
 void ofApp::zDepthShapeDraw(){
     
     ofPushMatrix();
+    
     ofPushStyle();
+    
     for (int i=0; i<mesh.getNumVertices(); i++) {
         float _z = mesh.getVertex(i).z;
         ofSetColor(255, 30);
@@ -462,7 +485,9 @@ void ofApp::zDepthShapeDraw(){
             ofDrawCircle(mesh.getVertex(i).x, mesh.getVertex(i).y, mesh.getVertex(i).z, mesh.getVertex(i).z*0.05);
         }
     }
+    
     ofPopStyle();
+    
     ofPopMatrix();
     
 }
@@ -471,18 +496,19 @@ void ofApp::zDepthShapeDraw(){
 //--------------------------------------------------------------
 void ofApp::edgeDraw(){
     
-    ofPushStyle();
-    
-    ofSetColor( 255, 0, 0 );
-    ofDrawRectangle(0, 0, ofGetWidth(), 10);
-    ofDrawRectangle(0, BIT, ofGetWidth(), 76);
-    ofDrawRectangle(0, ofGetHeight()-10, ofGetWidth(), 10);
-    ofDrawRectangle(0, 0, 10, ofGetHeight());
-    ofDrawRectangle(ofGetWidth()-10, 0, 10, ofGetHeight());
-    
-    ofPopStyle();
+    //    ofPushStyle();
+    //
+    //    ofSetColor( 255, 0, 0 );
+    //    ofDrawRectangle(0, 0, ofGetWidth(), 10);
+    //    ofDrawRectangle(0, BIT, ofGetWidth(), 76);
+    //    ofDrawRectangle(0, ofGetHeight()-10, ofGetWidth(), 10);
+    //    ofDrawRectangle(0, 0, 10, ofGetHeight());
+    //    ofDrawRectangle(ofGetWidth()-10, 0, 10, ofGetHeight());
+    //
+    //    ofPopStyle();
     
 }
+
 
 
 //--------------------------------------------------------------
@@ -503,20 +529,22 @@ void ofApp::interfaceView(){
     
 }
 
+
+
 //--------------------------------------------------------------
 void ofApp::imageCapture(){
     
-    //        captureImage.clear();
+    //    captureImage.clear();
     //    texScreen.clear();
     //    texScreen.allocate(captureW, captureH, GL_RGB);
     //    captureImage.allocate(captureW, captureH, OF_IMAGE_COLOR);
     
-//    texScreen.loadScreenData( 10, ofGetHeight()-512-10, captureW, captureH );
-//    captureImage.mirror(true, false);
-//    captureRect.set( 10, ofGetHeight()-512-10, captureW, captureH );
+    //    texScreen.loadScreenData( 10, ofGetHeight()-512-10, captureW, captureH );
+    //    captureImage.mirror(true, false);
+    //    captureRect.set( 10, ofGetHeight()-512-10, captureW, captureH );
     
     ofPixels _p;
-//    texScreen.readToPixels(_p);
+    //    texScreen.readToPixels(_p);
     
     if (imageProcessView) {
         processingImagFbo.readToPixels(_p);
@@ -524,7 +552,7 @@ void ofApp::imageCapture(){
         originalFbo.readToPixels(_p);
     }
     
-//    _p.mirror(true, false);
+    //    _p.mirror(true, false);
     captureImage.setFromPixels(_p.getData(), _p.getWidth(), _p.getHeight(), OF_IMAGE_COLOR);
     
     
@@ -623,11 +651,11 @@ void ofApp::keyPressed(int key){
     if (key==' '){
         if (spectrum->playing) {
             spectrum->pause();
-            ofSoundStreamStop();
+//            ofSoundStreamStop();
             cout << "stop";
         } else {
             spectrum->play();
-            ofSoundStreamStart();
+//            ofSoundStreamStart();
             cout << "play";
         }
     } else if (key=='g') {
@@ -818,6 +846,9 @@ void ofApp::modelPosition(){
         //                imageCapture();
         
     }
+    
+    
 }
+
 
 
