@@ -13,17 +13,26 @@ PlayerHead::PlayerHead(){
 }
 
 
-void PlayerHead::update(){
-	ofSetColor(255, 255, 255);
+//--------------------------------------------------------------
+void PlayerHead::drawPlayHead(){
+
+    ofPushStyle();
+	ofSetColor(255, 255, 255, 120);
 //	ofCircle(x1, y1, 3);
 //	ofCircle(x2, y2, 3);
-	ofLine(x1, y1, x2, y2);
+	ofDrawLine(x1, y1, x2, y2);
+    ofPopStyle();
+
 }
 
+//--------------------------------------------------------------
 void PlayerHead::mouseMoved(int x, int y) {
 	//cout << "hello";
 }
 
+
+
+//--------------------------------------------------------------
 void PlayerHead::mousePressed(int x, int y, int button) {
 	//if(e.x>x-10 and e.x<x+10){
 	//	dragging = true;
@@ -37,6 +46,9 @@ void PlayerHead::mousePressed(int x, int y, int button) {
 	}
 }
 
+
+
+//--------------------------------------------------------------
 void PlayerHead::mouseDragged(int x, int y, int button) {
 	if(dragging1){
 		if(x<10){
@@ -65,6 +77,10 @@ void PlayerHead::mouseDragged(int x, int y, int button) {
 		}
 	}
 }
+
+
+
+//--------------------------------------------------------------
 vector< pair <float,float > > PlayerHead::getPoints(int bit){
 	vector< pair <float,float > > tomb;
 	for (int i = 0; i<bit; i++) {
@@ -82,6 +98,9 @@ vector< pair <float,float > > PlayerHead::getPoints(int bit){
 	return tomb;
 }
 
+
+
+//--------------------------------------------------------------
 int fmax (int a,int b){
 	if(a>=b){
 		return a;
@@ -90,6 +109,7 @@ int fmax (int a,int b){
 	}
 }
 
+//--------------------------------------------------------------
 int fmin (int a,int b){
 	if(a>=b){
 		return b;

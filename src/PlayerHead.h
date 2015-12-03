@@ -15,7 +15,7 @@ public:
 	
 	vector< pair <float,float > > getPoints(int bit);
 	
-	void update();
+	void drawPlayHead();
     void mouseMoved(int x, int y );
 	void mouseDragged(int x, int y, int button);
 	void mousePressed(int x, int y, int button);

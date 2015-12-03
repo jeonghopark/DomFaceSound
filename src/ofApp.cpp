@@ -8,6 +8,7 @@ float sines[514]={0,0.012268,0.024536,0.036804,0.049042,0.06131,0.073547,0.08578
 //--------------------------------------------------------------
 void ofApp::setup(){
     
+
 #ifdef DEBUG
     
 #else
@@ -316,7 +317,7 @@ void ofApp::draw(){
     //    captureProcessImage.draw( 0, 0, captureW, captureH );
     
     
-    playerHead->update();
+    playerHead->drawPlayHead();
     
     ofPopMatrix();
     
@@ -567,7 +568,6 @@ void ofApp::imageCapture(){
     
     //    _p.mirror(true, false);
     captureImage.setFromPixels(_p.getData(), _p.getWidth(), _p.getHeight(), OF_IMAGE_COLOR);
-    
     
     spectrum->loadImageSpectrum(captureImage);
     
