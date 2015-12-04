@@ -5,6 +5,7 @@
 #include "PlayerHead.h"
 #include "ofxGui.h"
 #include "ofxAssimpModelLoader.h"
+#include "ofxAUPlugin.h"
 
 #define BUFFER_SIZE 8192
 #define SAMPLE_RATE 44100
@@ -132,7 +133,7 @@ public:
     
     ofImage faceImg;
     
-    ofSoundStream soundStream;
+//    ofSoundStream soundStream;
     
     void modelPosition();
     
@@ -148,5 +149,8 @@ public:
     //
     void drawVolumeLevel();
     
+    
+    //
+    ofxAUPlugin reverb;
     
 };
