@@ -1,3 +1,3 @@
-addons
 ofxAssimpModelLoader
+ofxAUPlugin
 ofxGui
