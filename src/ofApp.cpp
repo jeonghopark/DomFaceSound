@@ -26,29 +26,51 @@ void ofApp::setup(){
     
     ofEnablePointSprites();
     
+    ofEnableDepthTest();
+    
     faceImg.load("domFace01.jpg");
     
-    figureModel.loadModel("domFace01.obj");
-    figureModel.setPosition( 0, 0, 0 );
-    figureModel.setScaleNormalization(true);
+    figureModel.loadModel("mesh01/mesh01.obj", true);
+//    figureModel.setPosition(ofGetWidth() * 0.5, (float)ofGetHeight() * 0.75 , 0);
+    figureModel.setScaleNormalization(false);
+    figureModel.enableColors();
     
-    mesh.setMode(OF_PRIMITIVE_POINTS);
-    mesh = figureModel.getMesh(0);
-    mesh.enableColors();
-    mesh.enableIndices();
+//    cout << figureModel.getMeshCount() << endl;
+    
+    mainMesh.setMode(OF_PRIMITIVE_POINTS);
+    mainMesh.enableColors();
+    mainMesh.enableIndices();
+    
+    vector<ofMesh> _mesh;
+    _mesh.resize(figureModel.getMeshCount());
+
+    for (int i=0; i<_mesh.size(); i++) {
+        _mesh[i].setMode(OF_PRIMITIVE_POINTS);
+        _mesh[i] = figureModel.getMesh(i);
+        _mesh[i].enableColors();
+        _mesh[i].enableIndices();
+
+        
+        numPoint = _mesh[i].getNumVertices();
+        for (int n=0; n<numPoint; n++) {
+            mainMesh.addVertex(_mesh[i].getVertex(n));
+            mainMesh.addColor(ofColor(255, 170));
+        }
+
+    }
+    
+
+    ofVec3f _centerMesh = mainMesh.getCentroid() + ofVec3f(0, 1.5, 3);
+    for (int i=0; i<mainMesh.getNumVertices(); i++) {
+        mainMesh.setVertex(i, mainMesh.getVertex(i));
+    }
+    
     
     modelIndex = 0;
     
     //    glEnable(GL_POINT_SMOOTH);
     //    glPointSize(1);
     
-    ofVec3f _centerMesh = mesh.getCentroid() + ofVec3f(0, 1.5, 3);
-    
-    numPoint = mesh.getNumVertices();
-    for (int i=0; i<numPoint; i++) {
-        mesh.setVertex(i, mesh.getVertex(i) - _centerMesh);
-        mesh.addColor(ofColor(255,10));
-    }
     
     cam.setAutoDistance(false);
     cam.setDistance(10);
@@ -257,16 +279,31 @@ void ofApp::update(){
     frameRate = ofToString(ofGetFrameRate(),1);
     
     
-    
+    // FBO
     originalFbo.begin();
     cam.begin();
     
-    ofRotateY(90);
+//    ofRotateY(90);
     ofClear(0,0);
     
-    ofSetColor(150);
-    mesh.drawWireframe();
-    mesh.drawVertices();
+//    light.enable();
+    
+    ofEnableSeparateSpecularLight();
+    ofPushStyle();
+    ofSetColor(255,100);
+//    figureModel.drawFaces();
+//    ofSetColor(255,255);
+//    figureModel.drawWireframe();
+//    figureModel.drawVertices();
+    ofPopStyle();
+    ofPopMatrix();
+
+    
+    ofRotateZ(180);
+    ofPushStyle();
+    mainMesh.drawWireframe();
+//    mainMesh.drawVertices();
+    ofPopStyle();
     
     cam.end();
     originalFbo.end();
@@ -527,13 +564,13 @@ void ofApp::zDepthShapeDraw(){
     
     ofPushStyle();
     
-    for (int i=0; i<mesh.getNumVertices(); i++) {
-        float _z = mesh.getVertex(i).z;
-        ofSetColor(255, 30);
-        if ((_z>minZDepth)&&(_z<maxZDepth)) {
-            ofDrawCircle(mesh.getVertex(i).x, mesh.getVertex(i).y, mesh.getVertex(i).z, mesh.getVertex(i).z*0.05);
-        }
-    }
+//    for (int i=0; i<mesh.getNumVertices(); i++) {
+//        float _z = mesh.getVertex(i).z;
+//        ofSetColor(255, 30);
+//        if ((_z>minZDepth)&&(_z<maxZDepth)) {
+//            ofDrawCircle(mesh.getVertex(i).x, mesh.getVertex(i).y, mesh.getVertex(i).z, mesh.getVertex(i).z*0.05);
+//        }
+//    }
     
     ofPopStyle();
     
@@ -731,7 +768,7 @@ void ofApp::guiSetting(){
 void ofApp::close() {
     
     figureModel.clear();
-    mesh.clear();
+    mainMesh.clear();
     spectrum->pause();
     spectrum->stop();
     
@@ -793,7 +830,7 @@ void ofApp::modelPosition(){
         modelIndex++;
         modelIndex = modelIndex%13;
         
-        mesh.clear();
+        mainMesh.clear();
         
         switch ( modelIndex ) {
             case 0:
@@ -892,13 +929,16 @@ void ofApp::modelPosition(){
                 break;
         }
         
-        mesh = figureModel.getMesh(0);
-        
-        numPoint = mesh.getNumVertices();
-        
-        for (int i=0; i<numPoint; i++) {
-            mesh.addVertex(mesh.getVertex(i));
-            mesh.addColor(ofColor(255));
+        vector<ofMesh> _mesh;
+        for (int i=0; i<_mesh.size(); i++) {
+            _mesh[i] = figureModel.getMesh(i);
+            
+            numPoint = _mesh[i].getNumVertices();
+            
+            for (int i=0; i<numPoint; i++) {
+                mainMesh.addVertex(_mesh[i].getVertex(i));
+                mainMesh.addColor(ofColor(255));
+            }
         }
         //                imageCapture();
         

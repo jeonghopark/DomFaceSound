@@ -88,7 +88,7 @@ public:
 
     //3D Model
     ofxAssimpModelLoader figureModel;
-    ofMesh mesh;
+    ofMesh mainMesh;
     ofLight	light;
     ofEasyCam cam;
     
