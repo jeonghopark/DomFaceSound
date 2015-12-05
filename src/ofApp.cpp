@@ -25,10 +25,8 @@ void ofApp::setup(){
     ofDisableArbTex(); // we need GL_TEXTURE_2D for our models coords.
     
     ofEnablePointSprites();
-    
-    faceImg.load("domFace01.jpg");
-    
-    figureModel.loadModel("domFace01.obj");
+        
+    figureModel.loadModel("mesh01/mesh01.obj");
     figureModel.setPosition( 0, 0, 0 );
     figureModel.setScaleNormalization(true);
     
