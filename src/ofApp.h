@@ -117,21 +117,12 @@ public:
     bool bImageCapture;
     void loadCapture(ofImage _img);
 
-    void edgeDraw();
     
     void imageCapture();
-    
-    int interfaceBackgroundH, interfaceBackgroundW;
-    int interfaceBackgroundTop, interfaceBackgroundLeft;
-    void interfaceView();
-    ofEasyCam camInterface;
     
     
     void zDepthShapeDraw();
     
-    ofImage faceImg;
-    
-//    ofSoundStream soundStream;
     
     void modelPosition();
     
@@ -148,9 +139,6 @@ public:
     void drawVolumeLine();
     
     void fboCapture();
-    
-    bool fullScreen;
-    
     
     
 };

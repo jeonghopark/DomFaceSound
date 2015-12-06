@@ -8,13 +8,11 @@ float sines[514]={0,0.012268,0.024536,0.036804,0.049042,0.06131,0.073547,0.08578
 //--------------------------------------------------------------
 void ofApp::setup(){
     
-
 #ifdef DEBUG
     
 #else
     ofSetDataPathRoot("../Resources/data");
 #endif
-    
     
     ofEnableAlphaBlending();
     ofSetupScreen();
@@ -30,7 +28,6 @@ void ofApp::setup(){
 //    figureModel.setPosition( 0, 0, 0 );
     figureModel.setScaleNormalization(true);
     
-    cout << figureModel.getMeshCount() << endl;
     
     mesh.setMode(OF_PRIMITIVE_POINTS);
     mesh = figureModel.getMesh(0);
@@ -75,50 +72,21 @@ void ofApp::setup(){
     }
     
     
-    
-    
     maxHertz = 6000;
     spectrum = new SpectrumDrawer( 1, maxHertz );
     //    spectrum->loadImageSpectrum("model4_downup_contrast.jpg");
     
     playerHead = new PlayerHead();
     
-//    cout << soundStream.getDeviceList() << endl;
-  
-//    int samplerate = 44100;
-//    int buffersize = 1024;
-    
-//    soundStream.setDeviceID(1);
-//    soundStream.setup(this, 2, 0, SAMPLE_RATE, INITIAL_BUFFER_SIZE, 4 );
+
     ofSoundStreamSetup(2, 0, this, SAMPLE_RATE, INITIAL_BUFFER_SIZE, 4);
     
     
-
     imageFormat.addListener(this, &ofApp::imageFormatButtonClick);
     
     gui.setup();
-    gui.setPosition( ofGetWidth() - 230, 10 );
-    gui.add(frameRate.setup("FrameRate", " "));
-//    gui.add(modelSelect.setup("Model Select"));
-    gui.add(speed.setup("speed", 1.0, 0.0, 10.0) );
-    gui.add(openf.setup( "Open Picture", false) );
-    gui.add(maxHz.setup( "Spectrum Max HZ", 5000, 300.0, 8000.0) );
-    gui.add(minHz.setup( "Spectrum Min HZ", 50, 1.0, 200.0) );
-    gui.add(lineSize.setup( "LINE", 5.0, 0.0, 20.0) );
-    gui.add(reset.setup("Reset!", ""));
-    gui.add(imageFormat.setup("Image Format Quad/Land", true) );
-    gui.add(returnZero.setup("Return Zero"));
-    gui.add(pointView.setup("Point Cloud", true));
-    gui.add(maxZDepth.setup( "Max zDepth", 1.0, 0.0, 10.0) );
-    gui.add(minZDepth.setup( "Min zDepth", 0.0, -10.0, 10.0) );
-    gui.add(zDepthShape.setup("zDepth Shape", false));
-    gui.add(brightness.setup("PointBright", 120, 0, 255));
-    gui.add(imageProcessView.setup("ImageProcess", false));
-    gui.add(errorMath.setup("error", true));
-    gui.add(errorLength.setup("ErrorLength", 20, 2, 50));
-    gui.add(fadeLength.setup("FadeLength", 1, 0, 1));
-    gui.add(volume.setup("Volume", 10, 0, 20));
-    
+    guiSetting();
+
     
     errorLength.addListener(this, &ofApp::errorLengthChanged);
     
@@ -131,17 +99,15 @@ void ofApp::setup(){
     originalFbo.allocate(captureW, captureH, GL_RGB);
     processingImagFbo.allocate(captureW, captureH, GL_RGB);
     
-    bImageCapture = true;
     
-    //    camInterface.setAutoDistance(false);
-    //    camInterface.setDistance(-1000);
-    //    camInterface.move(-500, 0, 1000);
+    bImageCapture = true;
     
     bGuiView = true;
     imageProcessCapture = false;
     bImageProcess = false;
     
     bImageProcessView = false;
+    
     
 }
 
@@ -175,11 +141,8 @@ void ofApp::imageFormatButtonClick(bool & _b){
 //--------------------------------------------------------------
 void ofApp::update(){
     
-    //    texScreen.loadScreenData( ofGetHeight()-BIT-10, 10, captureW, captureH);
-    
-    
-//    modelPosition();
-    
+
+    //    modelPosition();
     
     spectrum->speed = speed;
     spectrum->maxHz = maxHz;
@@ -248,8 +211,16 @@ void ofApp::update(){
     }
     
     
+    if(bImageCapture) {
+        bImageCapture = false;
+        imageCapture();
+    }
     
-    
+    if (modelSelect) {
+        imageCapture();
+    }
+
+
 }
 
 
@@ -288,7 +259,6 @@ void ofApp::draw(){
         originalFbo.draw(0, 0);
     }
     
-    
     playerHead->drawPlayHead();
     
     ofPopMatrix();
@@ -301,26 +271,6 @@ void ofApp::draw(){
         ofDisablePointSprites();
         ofDisableDepthTest();
         gui.draw();
-    }
-    
-    
-    //    edgeDraw();
-    
-    
-    if(bImageCapture) {
-        bImageCapture = false;
-        imageCapture();
-    }
-    
-    
-    interfaceView();
-    
-    if (!spectrum->playing) {
-    }
-    
-    
-    if (modelSelect) {
-        imageCapture();
     }
     
     
@@ -429,7 +379,6 @@ void ofApp::processingImage(){
     float _size = 1;
     captureProcessImage.draw( 0, 0, captureW*_size, captureH*_size );
     
-    //        faceImg.draw( ofGetWidth()-faceImg.getWidth()*0.25, captureH*_size, faceImg.getWidth()*0.25, faceImg.getHeight()*0.25 );
     
     ofPopStyle();
     ofPopMatrix();
@@ -478,41 +427,7 @@ void ofApp::zDepthShapeDraw(){
 }
 
 
-//--------------------------------------------------------------
-void ofApp::edgeDraw(){
-    
-    //    ofPushStyle();
-    //
-    //    ofSetColor( 255, 0, 0 );
-    //    ofDrawRectangle(0, 0, ofGetWidth(), 10);
-    //    ofDrawRectangle(0, BIT, ofGetWidth(), 76);
-    //    ofDrawRectangle(0, ofGetHeight()-10, ofGetWidth(), 10);
-    //    ofDrawRectangle(0, 0, 10, ofGetHeight());
-    //    ofDrawRectangle(ofGetWidth()-10, 0, 10, ofGetHeight());
-    //
-    //    ofPopStyle();
-    
-}
 
-
-
-//--------------------------------------------------------------
-void ofApp::interfaceView(){
-    
-    interfaceBackgroundW = ofGetWidth()-20;
-    interfaceBackgroundH = ofGetHeight()-BIT*2-20;
-    interfaceBackgroundTop = BIT+20;
-    interfaceBackgroundLeft = 10;
-    
-    //    ofBoxPrimitive _box;
-    //    _box.set(70, 70, 70);
-    //    camInterface.begin();
-    //
-    //    _box.drawWireframe();
-    //
-    //    camInterface.end();
-    
-}
 
 
 
@@ -546,7 +461,7 @@ void ofApp::imageCapture(){
 
 
 //--------------------------------------------------------------
-void ofApp::audioRequested 	(float * output, int bufferSize, int nChannels){
+void ofApp::audioRequested (float * output, int bufferSize, int nChannels){
     
     if(spectrum->playing){
         
@@ -630,16 +545,36 @@ void ofApp::openFile(string URL){
 void ofApp::loadCapture(ofImage _img){
     
     spectrum->pause();
-    
     spectrum->loadImageSpectrum(_img);
     
 }
 
 
 
-
 //--------------------------------------------------------------
 void ofApp::guiSetting(){
+    
+    gui.setPosition( ofGetWidth() - 230, 10 );
+    gui.add(frameRate.setup("FrameRate", " "));
+    //    gui.add(modelSelect.setup("Model Select"));
+    gui.add(speed.setup("speed", 1.0, 0.0, 10.0) );
+    gui.add(openf.setup( "Open Picture", false) );
+    gui.add(maxHz.setup( "Spectrum Max HZ", 5000, 300.0, 8000.0) );
+    gui.add(minHz.setup( "Spectrum Min HZ", 50, 1.0, 200.0) );
+    gui.add(lineSize.setup( "LINE", 5.0, 0.0, 20.0) );
+    gui.add(reset.setup("Reset!", ""));
+    gui.add(imageFormat.setup("Image Format Quad/Land", true) );
+    gui.add(returnZero.setup("Return Zero"));
+    gui.add(pointView.setup("Point Cloud", true));
+    gui.add(maxZDepth.setup( "Max zDepth", 1.0, 0.0, 10.0) );
+    gui.add(minZDepth.setup( "Min zDepth", 0.0, -10.0, 10.0) );
+    gui.add(zDepthShape.setup("zDepth Shape", false));
+    gui.add(brightness.setup("PointBright", 120, 0, 255));
+    gui.add(imageProcessView.setup("ImageProcess", false));
+    gui.add(errorMath.setup("error", true));
+    gui.add(errorLength.setup("ErrorLength", 20, 2, 50));
+    gui.add(fadeLength.setup("FadeLength", 1, 0, 1));
+    gui.add(volume.setup("Volume", 10, 0, 20));
     
 }
 
@@ -657,29 +592,15 @@ void ofApp::close() {
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     
-    if (key==' '){
-        if (spectrum->playing) {
-            spectrum->pause();
-            //            ofSoundStreamStop();
-            cout << "stop";
-        } else {
-            spectrum->play();
-            //            ofSoundStreamStart();
-            cout << "play";
-        }
-    } else if (key=='g') {
-        bGuiView = !bGuiView;
-    }
-    
 }
-
-
 
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
     
+
     switch (key) {
+    
         case 'c':
             imageCapture();
             break;
@@ -710,14 +631,12 @@ void ofApp::keyReleased(int key){
             bGuiView = !bGuiView;
             break;
             
-        case 'f':
-            fullScreen = !fullScreen;
-            ofSetFullscreen(fullScreen);
-            
         default:
             break;
+            
     }
     
+
     
 }
 
@@ -767,95 +686,10 @@ void ofApp::modelPosition(){
         
         switch ( modelIndex ) {
             case 0:
-                figureModel.loadModel("domFace01.obj");
-                faceImg.load("domFace01.jpg");
+                figureModel.loadModel("mesh01/mesh01.obj");
                 cam.setDistance(30);
                 cam.setPosition(-11, -19, 21);
                 cam.setOrientation(ofVec3f(74,-87,3));
-                break;
-            case 1:
-                figureModel.loadModel("domFace02.obj");
-                faceImg.load("domFace02.jpg");
-                cam.setDistance(25);
-                cam.setPosition(-12, -15, 15);
-                cam.setOrientation(ofVec3f(69,-88,0));
-                break;
-            case 2:
-                figureModel.loadModel("domFace03.obj");
-                faceImg.load("domFace03.jpg");
-                cam.setDistance(28);
-                cam.setPosition(-10, -21, 16);
-                cam.setOrientation(ofVec3f(75,-88,0));
-                break;
-            case 3:
-                figureModel.loadModel("domFace04.obj");
-                faceImg.load("domFace04.jpg");
-                cam.setDistance(31);
-                cam.setPosition(-13, -22, 17);
-                cam.setOrientation(ofVec3f(75,-88,0));
-                break;
-            case 4:
-                figureModel.loadModel("domFace05.obj");
-                faceImg.load("domFace05.jpg");
-                cam.setDistance(28);
-                cam.setPosition(-16, 23, -4);
-                cam.setOrientation(ofVec3f(-107,85,-5));
-                break;
-            case 5:
-                figureModel.loadModel("domFace06.obj");
-                faceImg.load("domFace06.jpg");
-                cam.setDistance(31);
-                cam.setPosition(-19, -19, 15);
-                cam.setOrientation(ofVec3f(62,-87,0));
-                break;
-            case 6:
-                figureModel.loadModel("domFace07.obj");
-                faceImg.load("domFace07.jpg");
-                cam.setDistance(31);
-                cam.setPosition(-19,-20, 13);
-                cam.setOrientation(ofVec3f(60,-91,-4));
-                break;
-            case 7:
-                figureModel.loadModel("domFace08.obj");
-                faceImg.load("domFace08.jpg");
-                cam.setDistance(31);
-                cam.setPosition(-18,-21, 15);
-                cam.setOrientation(ofVec3f(65,-91,-4));
-                break;
-            case 8:
-                figureModel.loadModel("domFace09.obj");
-                faceImg.load("domFace09.jpg");
-                cam.setDistance(31);
-                cam.setPosition(-16,-22, 13);
-                cam.setOrientation(ofVec3f(70,-89,0));
-                break;
-            case 9:
-                figureModel.loadModel("domFace10.obj");
-                faceImg.load("domFace10.jpg");
-                cam.setDistance(27);
-                cam.setPosition(-9,25, 1);
-                cam.setOrientation(ofVec3f(-92,97,4));
-                break;
-            case 10:
-                figureModel.loadModel("domFace11.obj");
-                faceImg.load("domFace11.jpg");
-                cam.setDistance(31);
-                cam.setPosition(-15,-18, 21);
-                cam.setOrientation(ofVec3f(60,-79,3));
-                break;
-            case 11:
-                figureModel.loadModel("domFace12.obj");
-                faceImg.load("domFace12.jpg");
-                cam.setDistance(31);
-                cam.setPosition(-24,-11, 16);
-                cam.setOrientation(ofVec3f(41,-90,0));
-                break;
-            case 12:
-                figureModel.loadModel("domFace13.obj");
-                faceImg.load("domFace13.jpg");
-                cam.setDistance(31);
-                cam.setPosition(-17,-21, 16);
-                cam.setOrientation(ofVec3f(67,-90,0));
                 break;
                 
             default:
