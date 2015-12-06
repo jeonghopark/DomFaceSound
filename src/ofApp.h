@@ -101,7 +101,6 @@ public:
     
     ofTexture texScreen;
     ofRectangle captureRect;
-    void captureFunction();
     ofImage captureImage;
     ofTexture texProcessScreen;
     ofImage captureProcessImage;
@@ -146,7 +145,11 @@ public:
     
     
     //
-    void drawVolumeLevel();
+    void drawVolumeLine();
+    
+    void fboCapture();
+    
+    bool fullScreen;
     
     
     

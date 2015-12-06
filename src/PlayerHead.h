@@ -9,8 +9,8 @@ public:
 	PlayerHead();
 
 	int distance(int _x1, int _x2, int _y1, int _y2);
-	int x1,y1;
-	int x2,y2;
+	float x1,y1;
+	float x2,y2;
 	
 	
 	vector< pair <float,float > > getPoints(int bit);

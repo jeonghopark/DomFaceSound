@@ -53,8 +53,6 @@ void ofApp::setup(){
     cam.setAutoDistance(false);
     cam.setDistance(10);
     cam.setFarClip(0);
-    //    cam.setPosition(-10, -17, 20);
-    //    cam.setOrientation(ofVec3f(75,-88,0));
     
     
     captureW = ofGetWidth();
@@ -101,7 +99,7 @@ void ofApp::setup(){
     gui.setup();
     gui.setPosition( ofGetWidth() - 230, 10 );
     gui.add(frameRate.setup("FrameRate", " "));
-    gui.add(modelSelect.setup("Model Select"));
+//    gui.add(modelSelect.setup("Model Select"));
     gui.add(speed.setup("speed", 1.0, 0.0, 10.0) );
     gui.add(openf.setup( "Open Picture", false) );
     gui.add(maxHz.setup( "Spectrum Max HZ", 5000, 300.0, 8000.0) );
@@ -173,12 +171,6 @@ void ofApp::imageFormatButtonClick(bool & _b){
 
 
 
-//--------------------------------------------------------------
-void ofApp::captureFunction(){
-    
-}
-
-
 
 //--------------------------------------------------------------
 void ofApp::update(){
@@ -186,7 +178,7 @@ void ofApp::update(){
     //    texScreen.loadScreenData( ofGetHeight()-BIT-10, 10, captureW, captureH);
     
     
-    modelPosition();
+//    modelPosition();
     
     
     spectrum->speed = speed;
@@ -228,20 +220,9 @@ void ofApp::update(){
     frameRate = ofToString(ofGetFrameRate(),1);
     
     
-    
     originalFbo.begin();
-    cam.begin();
-    
-    ofRotateY(90);
-    ofClear(0,0);
-    
-    ofSetColor(150);
-    mesh.drawWireframe();
-    mesh.drawVertices();
-    
-    cam.end();
+    fboCapture();
     originalFbo.end();
-    
     
     
     if (imageProcessView && !bImageProcessView) {
@@ -268,18 +249,27 @@ void ofApp::update(){
     
     
     
-    //    if (imageProcessView) {
-    //        ofSetColor(255);
-    //        processingImage();
-    //        //        captureProcessImage.draw( 0, 0, captureW, captureH );
-    //    } else {
-    //
-    //        bufferFbo = originalFbo;
-    //    }
-    
     
 }
 
+
+
+//--------------------------------------------------------------
+void ofApp::fboCapture(){
+ 
+    ofClear(0,0);
+
+    cam.begin();
+    
+    ofRotateY(90);
+    
+    ofSetColor(150);
+    mesh.drawWireframe();
+    mesh.drawVertices();
+    
+    cam.end();
+
+}
 
 
 
@@ -287,24 +277,6 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    
-    //    ofEnableDepthTest();
-    //    ofEnablePointSprites();
-    
-    //    cam.begin();
-    //
-    //    ofPushMatrix();
-    //    if (pointView) pointDraw();
-    //    ofPopMatrix();
-    //
-    //
-    ////    ofPushMatrix();
-    ////    if (zDepthShape) zDepthShapeDraw();
-    ////    ofPopMatrix();
-    //
-    //    cam.end();
-    
-    
     
     ofPushMatrix();
     
@@ -316,20 +288,13 @@ void ofApp::draw(){
         originalFbo.draw(0, 0);
     }
     
-    //    if (imageProcessView) {
-    //        processingImage();
-    //    }
-    
-    //    captureProcessImage.draw( 0, 0, captureW, captureH );
-    
     
     playerHead->drawPlayHead();
     
     ofPopMatrix();
     
     
-    
-    drawVolumeLevel();
+    drawVolumeLine();
     
     
     if (bGuiView) {
@@ -364,7 +329,7 @@ void ofApp::draw(){
 
 
 //--------------------------------------------------------------
-void ofApp::drawVolumeLevel(){
+void ofApp::drawVolumeLine(){
     
     ofPushMatrix();
     ofTranslate(playerHead->x1, -10);
@@ -672,25 +637,6 @@ void ofApp::loadCapture(ofImage _img){
 
 
 
-//--------------------------------------------------------------
-void ofApp::keyPressed(int key){
-    
-    if (key==' '){
-        if (spectrum->playing) {
-            spectrum->pause();
-//            ofSoundStreamStop();
-            cout << "stop";
-        } else {
-            spectrum->play();
-//            ofSoundStreamStart();
-            cout << "play";
-        }
-    } else if (key=='g') {
-        bGuiView = !bGuiView;
-    }
-    
-}
-
 
 //--------------------------------------------------------------
 void ofApp::guiSetting(){
@@ -707,15 +653,69 @@ void ofApp::close() {
     
 }
 
+
+//--------------------------------------------------------------
+void ofApp::keyPressed(int key){
+    
+    if (key==' '){
+        if (spectrum->playing) {
+            spectrum->pause();
+            //            ofSoundStreamStop();
+            cout << "stop";
+        } else {
+            spectrum->play();
+            //            ofSoundStreamStart();
+            cout << "play";
+        }
+    } else if (key=='g') {
+        bGuiView = !bGuiView;
+    }
+    
+}
+
+
+
+
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
     
-    if (key=='c'){
-        imageCapture();
-    } else if (key=='p') {
-        spectrum->loadImageSpectrum(captureProcessImage);
-    } else if (key == ' ') {
-        imageCapture();
+    switch (key) {
+        case 'c':
+            imageCapture();
+            break;
+
+        case 'p':
+            spectrum->loadImageSpectrum(captureProcessImage);
+            break;
+            
+        case ' ':
+            imageCapture();
+            if (spectrum->playing) {
+                spectrum->pause();
+                //            ofSoundStreamStop();
+                cout << "stop";
+            } else {
+                spectrum->play();
+                //            ofSoundStreamStart();
+                cout << "play";
+            }
+            break;
+        
+        case 'r':
+            playerHead->x1 = ofRandom(ofGetWidth());
+            playerHead->x2 = playerHead->x1;
+            break;
+            
+        case 'g':
+            bGuiView = !bGuiView;
+            break;
+            
+        case 'f':
+            fullScreen = !fullScreen;
+            ofSetFullscreen(fullScreen);
+            
+        default:
+            break;
     }
     
     
