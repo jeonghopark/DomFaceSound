@@ -140,5 +140,7 @@ public:
     
     void fboCapture();
     
+    float processScreenWidth, processScreenHeight;
+    float screenWidth, screenHeight;
     
 };

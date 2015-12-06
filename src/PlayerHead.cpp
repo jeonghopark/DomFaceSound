@@ -51,13 +51,13 @@ void PlayerHead::mousePressed(int x, int y, int button) {
 //--------------------------------------------------------------
 void PlayerHead::mouseDragged(int x, int y, int button) {
 	if(dragging1){
-		if(x<10){
+		if(x<0){
 			x1 = fmax(x, 0);
 		}else {
-			x1 = fmin(x, ofGetWidth());
+			x1 = fmin(x, 1280);
 		}
 
-		if (y<10) {
+		if (y<0) {
 			y1 = fmax(y, 0);
 		}else {
 			y1 = fmin(y, 512);
@@ -67,7 +67,7 @@ void PlayerHead::mouseDragged(int x, int y, int button) {
 		if(x<0){
 			x2 = fmax(x, 0);
 		}else {
-			x2 = fmin(x, ofGetWidth());
+			x2 = fmin(x, 1280);
 		}
 		
 		if (y<0) {

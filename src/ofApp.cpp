@@ -23,11 +23,15 @@ void ofApp::setup(){
     ofDisableArbTex(); // we need GL_TEXTURE_2D for our models coords.
     
     ofEnablePointSprites();
-        
-    figureModel.loadModel("mesh01/mesh01.obj");
-//    figureModel.setPosition( 0, 0, 0 );
-    figureModel.setScaleNormalization(true);
     
+    processScreenWidth = 1280;
+    processScreenHeight = 512;
+    screenWidth = processScreenWidth;
+    screenHeight = processScreenHeight;
+
+    
+    figureModel.loadModel("mesh01/mesh01.obj");
+    figureModel.setScaleNormalization(false);
     
     mesh.setMode(OF_PRIMITIVE_POINTS);
     mesh = figureModel.getMesh(0);
@@ -52,8 +56,9 @@ void ofApp::setup(){
     cam.setFarClip(0);
     
     
-    captureW = ofGetWidth();
-    captureH = BIT;
+    captureW = processScreenWidth;
+    captureH = processScreenHeight;
+    
     
     line = 0;
     
@@ -167,7 +172,7 @@ void ofApp::update(){
         playerHead->x1 += speed;
         playerHead->x2 += speed;
         
-        if (playerHead->x1>ofGetWidth()){
+        if (playerHead->x1>processScreenWidth){
             playerHead->x1 = 0;
             playerHead->x2 = 0;
         }
@@ -250,6 +255,12 @@ void ofApp::fboCapture(){
 void ofApp::draw(){
     
     ofPushMatrix();
+
+    float _x = (screenWidth - processScreenWidth) * 0.5;
+    float _y = (screenHeight - processScreenHeight) * 0.5;
+    ofTranslate(_x, _y);
+    
+    ofPushMatrix();
     
     spectrum->update();
     
@@ -267,12 +278,14 @@ void ofApp::draw(){
     drawVolumeLine();
     
     
+    ofPopMatrix();
+
     if (bGuiView) {
         ofDisablePointSprites();
         ofDisableDepthTest();
         gui.draw();
     }
-    
+
     
 }
 
@@ -282,16 +295,18 @@ void ofApp::draw(){
 void ofApp::drawVolumeLine(){
     
     ofPushMatrix();
-    ofTranslate(playerHead->x1, -10);
+    ofTranslate(playerHead->x1, 0);
     
     ofPushStyle();
     ofSetColor(255, 255, 255, 100);
     
     if ( spectrum->playing ) {
-        vector< pair <float, float> > points = playerHead -> getPoints(BIT);
+        
+        vector< pair <float, float> > points = playerHead->getPoints(BIT);
+
         for(int n = 0; n < BIT; n++){
-            amp[n] = (amp[n]*line + spectrum -> getAmp(points[n].first, points[n].second))/(line+1);
-            hertzScale[n] = int(spectrum -> getFreq(points[n].second));
+            amp[n] = (amp[n]*line + spectrum->getAmp(points[n].first, points[n].second))/(line+1);
+            hertzScale[n] = int(spectrum->getFreq(points[n].second));
             
             //            float a = (outp[n]-outp[n+1]);
             //            if (a > .5 or a < - .5) {
@@ -312,6 +327,7 @@ void ofApp::drawVolumeLine(){
             ofDrawLine( 0, n * 1, -amp[n] * _levelSize, n * 1 );
             
         }
+        
     }
     
     ofPopStyle();
@@ -341,12 +357,10 @@ void ofApp::processingImage(){
     originalFbo.readToPixels(_pProcess);
     
     
-    int _r;
-    int _g;
-    int _b;
     
     unsigned char * _rawPixels = _pProcess.getData();
     
+    int _r, _g, _b;
     
     int _length = errorLength;
     for (int j=0; j<captureH; j++) {
@@ -471,7 +485,7 @@ void ofApp::audioRequested (float * output, int bufferSize, int nChannels){
             
             wave = 0.0;
             
-            for(int n = 0;n<BIT;n++){
+            for(int n=0; n<BIT; n++){
                 
                 if (amp[n]>0.00001) {
                     phases[n] += 512./(44100.0/(hertzScale[n]));
@@ -663,6 +677,9 @@ void ofApp::mouseReleased(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
+    
+    screenWidth = (float)w;
+    screenHeight = (float)h;
     
 }
 

@@ -1,6 +1,8 @@
 #include "SpectrumDrawer.h"
 
 int spectrumHeight = 512;
+
+
 //--------------------------------------------------------------
 SpectrumDrawer::SpectrumDrawer(int _minHz, int _maxHz){
     width = 0;
@@ -20,11 +22,15 @@ SpectrumDrawer::SpectrumDrawer(int _minHz, int _maxHz){
     
     //invert = false;
 }
+
+
+
+//--------------------------------------------------------------
 void SpectrumDrawer::update(){
     
     ofPushStyle();
-    ofSetColor(10, 10, 10., 120);
-    ofDrawRectangle(0, 0, ofGetWidth(), spectrumHeight);
+    ofSetColor(10, 10, 10, 120);
+    ofDrawRectangle(0, 0, 1280, spectrumHeight);
     ofPopStyle();
     
     if(playing){
@@ -59,9 +65,9 @@ void SpectrumDrawer::update(){
         
         float offYRatio = (offsetY)/(float) width;
         glTexCoord2f(0.0 + offYRatio, 0.0 + offXRatio);		glVertex3i(0, 0, 0);
-        glTexCoord2f(0.0 + offYRatio, ratio + offXRatio);		glVertex3i(ofGetWidth(), 0, 0);
-        glTexCoord2f(1.0 + offYRatio, ratio + offXRatio);		glVertex3i(ofGetWidth(), spectrumHeight, 0);
-        glTexCoord2f(1.0 + offYRatio, 0.0 + offXRatio);		glVertex3i(0, spectrumHeight+10, 0);
+        glTexCoord2f(0.0 + offYRatio, ratio + offXRatio);		glVertex3i(1280, 0, 0);
+        glTexCoord2f(1.0 + offYRatio, ratio + offXRatio);		glVertex3i(1280, spectrumHeight, 0);
+        glTexCoord2f(1.0 + offYRatio, 0.0 + offXRatio);		glVertex3i(0, spectrumHeight, 0);
         
         glEnd();
         glFlush();
@@ -70,11 +76,11 @@ void SpectrumDrawer::update(){
     }else {
         //keszulo spektrumot rajzolunk
         glBegin(GL_POINTS);
-        for (int x=0; x<ofGetWidth(); x++) {
+        for (int x=0; x<1280; x++) {
             for (int y=0; y<spectrumHeight; y++) {
                 float c;
-                if (width>ofGetWidth()) {
-                    c = pixels[x+(width-ofGetWidth())][y];
+                if (width>1280) {
+                    c = pixels[x+(width-1280)][y];
                 } else {
                     c = pixels[x][y];
                 }
@@ -359,8 +365,8 @@ void SpectrumDrawer::stop(){
 float SpectrumDrawer::getAmp(float x, float y){
     float amp=0;
     if(height>0){
-        x=x-10;
-        y=y-10;
+        x=x-0;
+        y=y-0;
         
         amp = getPixel(x, y);
         
@@ -371,7 +377,7 @@ float SpectrumDrawer::getFreq(float y){
     float freq=0;
     
     if(height>0){
-        y-=9;
+        y-=0;
         float yToFreq = (y/spectrumHeight)*maxHz;
         
         //TODO logarithmic scale
