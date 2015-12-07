@@ -15,6 +15,7 @@ void ofApp::setup(){
 #endif
     
     ofEnableAlphaBlending();
+    ofEnableDepthTest();
     ofSetupScreen();
     ofSetFrameRate(60);
     
@@ -30,7 +31,7 @@ void ofApp::setup(){
     screenHeight = processScreenHeight;
 
     
-    figureModel.loadModel("mesh01/mesh01.obj");
+    figureModel.loadModel("mesh04/mesh04.obj", true);
     figureModel.setScaleNormalization(false);
     
     mesh.setMode(OF_PRIMITIVE_POINTS);
@@ -43,11 +44,15 @@ void ofApp::setup(){
     
     ofVec3f _centerMesh = mesh.getCentroid() + ofVec3f(0, 1.5, 3);
     
+
     numPoint = mesh.getNumVertices();
     for (int i=0; i<numPoint; i++) {
         mesh.setVertex(i, mesh.getVertex(i) - _centerMesh);
-        mesh.addColor(ofColor(255,10));
+        mesh.addColor(ofColor(255,80));
     }
+    
+    
+    
     
     cam.setAutoDistance(false);
     cam.setDistance(10);
@@ -86,7 +91,7 @@ void ofApp::setup(){
     gui.setup();
     guiSetting();
 
-    imageFormat.addListener(this, &ofApp::imageFormatButtonClick);
+//    imageFormat.addListener(this, &ofApp::imageFormatButtonClick);
     errorLength.addListener(this, &ofApp::errorLengthChanged);
     
     texScreen.allocate(captureW, captureH, GL_RGB);
@@ -123,15 +128,15 @@ void ofApp::errorLengthChanged(int & _m){
 
 
 //--------------------------------------------------------------
-void ofApp::imageFormatButtonClick(bool & _b){
-    
-    //    captureImage.clear();
-    //    texScreen.clear();
-    //    texScreen.allocate(captureW, captureH, GL_RGB);
-    //    captureImage.allocate(captureW, captureH, OF_IMAGE_COLOR);
-    //    captureRect.set( 10, ofGetHeight()-512-10, captureW, captureH );
-    
-}
+//void ofApp::imageFormatButtonClick(bool & _b){
+//    
+//    //    captureImage.clear();
+//    //    texScreen.clear();
+//    //    texScreen.allocate(captureW, captureH, GL_RGB);
+//    //    captureImage.allocate(captureW, captureH, OF_IMAGE_COLOR);
+//    //    captureRect.set( 10, ofGetHeight()-512-10, captureW, captureH );
+//    
+//}
 
 
 
@@ -148,17 +153,17 @@ void ofApp::update(){
     line = lineSize;
     
     
-    if(openf) {
-        openFile();
-    }
+//    if(openf) {
+//        openFile();
+//    }
     
     
-    if(reset){
-        spectrum->speed = 3;
-        spectrum->maxHz = maxHertz;
-        spectrum->minHz = 1;
-        reset=false;
-    }
+//    if(reset){
+//        spectrum->speed = 3;
+//        spectrum->maxHz = maxHertz;
+//        spectrum->minHz = 1;
+//        reset=false;
+//    }
     
     
     if (spectrum->playing) {
@@ -218,6 +223,7 @@ void ofApp::update(){
         imageCapture();
     }
 
+    
 
 }
 
@@ -230,12 +236,20 @@ void ofApp::fboCapture(){
 
     cam.begin();
     
-    ofRotateY(90);
+//    ofRotateY(90);
     
-    ofSetColor(150);
-    mesh.drawWireframe();
+//    ofSetColor(150);
+    
+    ofRotateZ(180);
+
+
+
+//    ofSetColor(150);
+//    mesh.drawWireframe();
     mesh.drawVertices();
-    
+//    figureModel.drawFaces();
+//    figureModel.drawWireframe();
+
     cam.end();
 
 }
@@ -247,6 +261,7 @@ void ofApp::fboCapture(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
+
     ofPushMatrix();
 
     float _x = (screenWidth - processScreenWidth) * 0.5;
@@ -255,14 +270,40 @@ void ofApp::draw(){
     
     ofPushMatrix();
     
+    
     spectrum->update();
     
     if (imageProcessView) {
         processingImagFbo.draw(0, 0);
     } else {
         originalFbo.draw(0, 0);
+        cam.begin();
+        
+//        ofRotateY(90);
+        
+        //    ofSetColor(150);
+        
+        ofxAssimpMeshHelper & meshHelper = figureModel.getMeshHelper(0);
+        
+        ofMultMatrix(figureModel.getModelMatrix());
+        ofMultMatrix(meshHelper.matrix);
+        
+        ofMaterial & material = meshHelper.material;
+        if(meshHelper.hasTexture()){
+            meshHelper.getTextureRef().bind();
+        }
+        material.begin();
+        mesh.drawWireframe();
+        material.end();
+        if(meshHelper.hasTexture()){
+            meshHelper.getTextureRef().unbind();
+        }
+        
+        
+        cam.end();
     }
     
+
     playerHead->drawPlayHead();
     
     ofPopMatrix();
@@ -357,6 +398,7 @@ void ofApp::processingImage(){
     int _r, _g, _b;
     
     int _length = errorLength;
+
     for (int j=0; j<captureH; j++) {
         for (int i=0; i<captureW-_length; i+=_length) {
             int _index = i + j * (captureW);
@@ -364,15 +406,19 @@ void ofApp::processingImage(){
             _r = _rawPixels[_index*3];
             _g = _rawPixels[_index*3+ 1];
             _b = _rawPixels[_index*3+ 2];
-            int _sumColor = _r + _g + _b;
+            int _sumColor = (_r + _g + _b) / 3.0;
             
             for (int k=0; k<_length; k++) {
-                _pProcess.setColor(i+k, j, ofColor( ((_sumColor)/3.0/85.0)*brightness*(ofMap(k,0,_length,1,fadeLength)) ) );
+                float _r = MAX(-fadeLength * k + 1.0, 0);
+                ofColor _c = ofColor( _sumColor * _r);
+                _pProcess.setColor(i+k, j, _c);
             }
+            
         }
     }
     
     
+    // TODO: Image Processing Ending
     for (int j=0; j<captureH; j++) {
         for (int i=captureW-_length; i<captureW; i++) {
             _pProcess.setColor(i, j, ofColor(0) );
@@ -414,25 +460,25 @@ void ofApp::pointDraw(){
 
 
 //--------------------------------------------------------------
-void ofApp::zDepthShapeDraw(){
-    
-    ofPushMatrix();
-    
-    ofPushStyle();
-    
-    for (int i=0; i<mesh.getNumVertices(); i++) {
-        float _z = mesh.getVertex(i).z;
-        ofSetColor(255, 30);
-        if ((_z>minZDepth)&&(_z<maxZDepth)) {
-            ofDrawCircle(mesh.getVertex(i).x, mesh.getVertex(i).y, mesh.getVertex(i).z, mesh.getVertex(i).z*0.05);
-        }
-    }
-    
-    ofPopStyle();
-    
-    ofPopMatrix();
-    
-}
+//void ofApp::zDepthShapeDraw(){
+//    
+//    ofPushMatrix();
+//    
+//    ofPushStyle();
+//    
+//    for (int i=0; i<mesh.getNumVertices(); i++) {
+//        float _z = mesh.getVertex(i).z;
+//        ofSetColor(255, 30);
+//        if ((_z>minZDepth)&&(_z<maxZDepth)) {
+//            ofDrawCircle(mesh.getVertex(i).x, mesh.getVertex(i).y, mesh.getVertex(i).z, mesh.getVertex(i).z*0.05);
+//        }
+//    }
+//    
+//    ofPopStyle();
+//    
+//    ofPopMatrix();
+//    
+//}
 
 
 
@@ -526,27 +572,27 @@ void ofApp::audioReceived(float * input, int bufferSize, int nChannels){
 
 
 //--------------------------------------------------------------
-void ofApp::openFile(string URL){
-    
-    string _output;
-    spectrum->pause();
-    if(URL==""){
-        ofFileDialogResult result = ofSystemLoadDialog("Open File", false, "");
-        
-        if(result.bSuccess){
-            URL = result.filePath;
-            _output = "URL to open: \n "+URL;
-            string extension;
-            for(int i = URL.length()-3; i < URL.length(); i++){
-                extension+=URL[i];
-            }
-            spectrum->loadImageSpectrum(URL);
-        }else {
-            _output = "OPEN canceled. ";
-        }
-    }
-    
-}
+//void ofApp::openFile(string URL){
+//    
+//    string _output;
+//    spectrum->pause();
+//    if(URL==""){
+//        ofFileDialogResult result = ofSystemLoadDialog("Open File", false, "");
+//        
+//        if(result.bSuccess){
+//            URL = result.filePath;
+//            _output = "URL to open: \n "+URL;
+//            string extension;
+//            for(int i = URL.length()-3; i < URL.length(); i++){
+//                extension+=URL[i];
+//            }
+//            spectrum->loadImageSpectrum(URL);
+//        }else {
+//            _output = "OPEN canceled. ";
+//        }
+//    }
+//    
+//}
 
 
 //--------------------------------------------------------------
@@ -566,23 +612,23 @@ void ofApp::guiSetting(){
     gui.add(frameRate.setup("FrameRate", " "));
     //    gui.add(modelSelect.setup("Model Select"));
     gui.add(speed.setup("speed", 1.0, 0.0, 10.0) );
-    gui.add(openf.setup( "Open Picture", false) );
+//    gui.add(openf.setup( "Open Picture", false) );
     gui.add(maxHz.setup( "Spectrum Max HZ", 5000, 300.0, 8000.0) );
     gui.add(minHz.setup( "Spectrum Min HZ", 50, 1.0, 200.0) );
     gui.add(lineSize.setup( "LINE", 5.0, 0.0, 20.0) );
-    gui.add(reset.setup("Reset!", ""));
-    gui.add(imageFormat.setup("Image Format Quad/Land", true) );
+//    gui.add(reset.setup("Reset!", ""));
+//    gui.add(imageFormat.setup("Image Format Quad/Land", true) );
     gui.add(returnZero.setup("Return Zero"));
-    gui.add(pointView.setup("Point Cloud", true));
-    gui.add(maxZDepth.setup( "Max zDepth", 1.0, 0.0, 10.0) );
-    gui.add(minZDepth.setup( "Min zDepth", 0.0, -10.0, 10.0) );
-    gui.add(zDepthShape.setup("zDepth Shape", false));
-    gui.add(brightness.setup("PointBright", 120, 0, 255));
+//    gui.add(pointView.setup("Point Cloud", true));
+//    gui.add(maxZDepth.setup( "Max zDepth", 1.0, 0.0, 10.0) );
+//    gui.add(minZDepth.setup( "Min zDepth", 0.0, -10.0, 10.0) );
+//    gui.add(zDepthShape.setup("zDepth Shape", false));
+//    gui.add(brightness.setup("PointBright", 120, 0, 255));
     gui.add(imageProcessView.setup("ImageProcess", false));
     gui.add(errorMath.setup("error", true));
     gui.add(errorLength.setup("ErrorLength", 20, 2, 50));
-    gui.add(fadeLength.setup("FadeLength", 1, 0, 1));
-    gui.add(volume.setup("Volume", 10, 0, 20));
+    gui.add(fadeLength.setup("FadeLength", 0, 0, 0.01));
+    gui.add(volume.setup("Volume", 5, 0, 10));
     
 }
 
@@ -650,23 +696,24 @@ void ofApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y){
-    playerHead->mouseMoved(x,y);
+
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
-    playerHead->mouseDragged(x,y,button);
+
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-    playerHead->mousePressed(x,y,button);
+
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-    playerHead->mouseReleased(x,y,button);
-    
+ 
+    imageCapture();
+
 }
 
 //--------------------------------------------------------------

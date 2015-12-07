@@ -33,7 +33,7 @@ public:
     void audioRequested (float * input, int bufferSize, int nChannels);
     void audioReceived (float * input, int bufferSize, int nChannels);
     
-    void openFile(string URL="");
+//    void openFile(string URL="");
     
     float line;
     
@@ -56,29 +56,29 @@ public:
     void guiSetting();
     ofxPanel gui;
     ofxFloatSlider speed;
-    ofxButton openf;
+//    ofxButton openf;
     ofxButton openm;
     ofxToggle invert;
     ofxToggle square;
     ofxFloatSlider maxHz;
     ofxFloatSlider minHz;
     ofxFloatSlider lineSize;
-    ofxToggle reset;
-    ofxToggle imageFormat;
+//    ofxToggle reset;
+//    ofxToggle imageFormat;
     ofxButton modelSelect;
     ofxButton returnZero;
-    ofxToggle pointView;
+//    ofxToggle pointView;
     ofxToggle imageProcessView;
     
     ofxToggle errorMath;
     ofxIntSlider errorLength;
     ofxFloatSlider fadeLength;
     
-    ofxFloatSlider maxZDepth;
-    ofxFloatSlider minZDepth;
-    ofxToggle zDepthShape;
+//    ofxFloatSlider maxZDepth;
+//    ofxFloatSlider minZDepth;
+//    ofxToggle zDepthShape;
     
-    ofxIntSlider brightness;
+//    ofxIntSlider brightness;
     ofxIntSlider volume;
     ofxLabel frameRate;
     
@@ -110,7 +110,7 @@ public:
     
     ofMatrix4x4 setMatrix;
     
-    void imageFormatButtonClick(bool &_b);
+//    void imageFormatButtonClick(bool &_b);
 
     int captureH, captureW;
     
@@ -121,7 +121,7 @@ public:
     void imageCapture();
     
     
-    void zDepthShapeDraw();
+//    void zDepthShapeDraw();
     
     
     void modelPosition();
