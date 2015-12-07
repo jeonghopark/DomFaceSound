@@ -20,7 +20,7 @@ void ofApp::setup(){
     
     ofBackground(0);
     
-    ofDisableArbTex(); // we need GL_TEXTURE_2D for our models coords.
+    ofDisableArbTex();
     
     ofEnablePointSprites();
     
@@ -37,11 +37,9 @@ void ofApp::setup(){
     mesh = figureModel.getMesh(0);
     mesh.enableColors();
     mesh.enableIndices();
+
     
     modelIndex = 0;
-    
-    //    glEnable(GL_POINT_SMOOTH);
-    //    glPointSize(1);
     
     ofVec3f _centerMesh = mesh.getCentroid() + ofVec3f(0, 1.5, 3);
     
@@ -79,22 +77,17 @@ void ofApp::setup(){
     
     maxHertz = 6000;
     spectrum = new SpectrumDrawer( 1, maxHertz );
-    //    spectrum->loadImageSpectrum("model4_downup_contrast.jpg");
-    
     playerHead = new PlayerHead();
     
 
     ofSoundStreamSetup(2, 0, this, SAMPLE_RATE, INITIAL_BUFFER_SIZE, 4);
     
     
-    imageFormat.addListener(this, &ofApp::imageFormatButtonClick);
-    
     gui.setup();
     guiSetting();
 
-    
+    imageFormat.addListener(this, &ofApp::imageFormatButtonClick);
     errorLength.addListener(this, &ofApp::errorLengthChanged);
-    
     
     texScreen.allocate(captureW, captureH, GL_RGB);
     captureImage.allocate(captureW, captureH, OF_IMAGE_COLOR);
@@ -335,6 +328,7 @@ void ofApp::drawVolumeLine(){
     ofPopMatrix();
     
 }
+
 
 
 //--------------------------------------------------------------
