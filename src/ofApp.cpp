@@ -29,7 +29,7 @@ void ofApp::setup(){
     processScreenHeight = 512;
     screenWidth = processScreenWidth;
     screenHeight = processScreenHeight;
-
+    
     
     figureModel.loadModel("mesh04/mesh04.obj", true);
     figureModel.setScaleNormalization(false);
@@ -38,20 +38,18 @@ void ofApp::setup(){
     mesh = figureModel.getMesh(0);
     mesh.enableColors();
     mesh.enableIndices();
-
+    
     
     modelIndex = 0;
     
     ofVec3f _centerMesh = mesh.getCentroid() + ofVec3f(0, 1.5, 3);
     
-
+    
     numPoint = mesh.getNumVertices();
     for (int i=0; i<numPoint; i++) {
         mesh.setVertex(i, mesh.getVertex(i) - _centerMesh);
-        mesh.addColor(ofColor(255,80));
+        mesh.addColor(ofColor(255,30));
     }
-    
-    
     
     
     cam.setAutoDistance(false);
@@ -69,9 +67,11 @@ void ofApp::setup(){
         sineBuffer[i] = sines[i];
     }
     
+    
     for (int i=0; i<INITIAL_BUFFER_SIZE ; i++) {
         outp[i] = 0;
     }
+    
     
     for (int i=0; i<BIT ; i++) {
         amp[i] = 0;
@@ -80,18 +80,19 @@ void ofApp::setup(){
     }
     
     
+    
     maxHertz = 6000;
     spectrum = new SpectrumDrawer( 1, maxHertz );
     playerHead = new PlayerHead();
     
-
+    
     ofSoundStreamSetup(2, 0, this, SAMPLE_RATE, INITIAL_BUFFER_SIZE, 4);
     
     
     gui.setup();
     guiSetting();
-
-//    imageFormat.addListener(this, &ofApp::imageFormatButtonClick);
+    
+    //    imageFormat.addListener(this, &ofApp::imageFormatButtonClick);
     errorLength.addListener(this, &ofApp::errorLengthChanged);
     
     texScreen.allocate(captureW, captureH, GL_RGB);
@@ -126,44 +127,15 @@ void ofApp::errorLengthChanged(int & _m){
 
 
 
-
-//--------------------------------------------------------------
-//void ofApp::imageFormatButtonClick(bool & _b){
-//    
-//    //    captureImage.clear();
-//    //    texScreen.clear();
-//    //    texScreen.allocate(captureW, captureH, GL_RGB);
-//    //    captureImage.allocate(captureW, captureH, OF_IMAGE_COLOR);
-//    //    captureRect.set( 10, ofGetHeight()-512-10, captureW, captureH );
-//    
-//}
-
-
-
-
 //--------------------------------------------------------------
 void ofApp::update(){
     
-
     //    modelPosition();
     
     spectrum->speed = speed;
     spectrum->maxHz = maxHz;
     spectrum->minHz = minHz;
     line = lineSize;
-    
-    
-//    if(openf) {
-//        openFile();
-//    }
-    
-    
-//    if(reset){
-//        spectrum->speed = 3;
-//        spectrum->maxHz = maxHertz;
-//        spectrum->minHz = 1;
-//        reset=false;
-//    }
     
     
     if (spectrum->playing) {
@@ -222,36 +194,35 @@ void ofApp::update(){
     if (modelSelect) {
         imageCapture();
     }
-
     
-
+    
 }
 
 
 
 //--------------------------------------------------------------
 void ofApp::fboCapture(){
- 
+    
     ofClear(0,0);
-
+    
     cam.begin();
     
-//    ofRotateY(90);
+    //    ofRotateY(90);
     
-//    ofSetColor(150);
+    ofSetColor(150);
     
     ofRotateZ(180);
-
-
-
-//    ofSetColor(150);
-//    mesh.drawWireframe();
+    
+    
+    
+    //    ofSetColor(10);
+    //    mesh.drawWireframe();
     mesh.drawVertices();
-//    figureModel.drawFaces();
-//    figureModel.drawWireframe();
-
+    //    figureModel.drawFaces();
+    //    figureModel.drawWireframe();
+    
     cam.end();
-
+    
 }
 
 
@@ -261,9 +232,9 @@ void ofApp::fboCapture(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-
+    
     ofPushMatrix();
-
+    
     float _x = (screenWidth - processScreenWidth) * 0.5;
     float _y = (screenHeight - processScreenHeight) * 0.5;
     ofTranslate(_x, _y);
@@ -279,7 +250,7 @@ void ofApp::draw(){
         originalFbo.draw(0, 0);
         cam.begin();
         
-//        ofRotateY(90);
+        //        ofRotateY(90);
         
         //    ofSetColor(150);
         
@@ -303,7 +274,7 @@ void ofApp::draw(){
         cam.end();
     }
     
-
+    
     playerHead->drawPlayHead();
     
     ofPopMatrix();
@@ -313,13 +284,13 @@ void ofApp::draw(){
     
     
     ofPopMatrix();
-
+    
     if (bGuiView) {
         ofDisablePointSprites();
         ofDisableDepthTest();
         gui.draw();
     }
-
+    
     
 }
 
@@ -337,8 +308,8 @@ void ofApp::drawVolumeLine(){
     if ( spectrum->playing ) {
         
         vector< pair <float, float> > points = playerHead->getPoints(BIT);
-
-        for(int n = 0; n < BIT; n++){
+        
+        for(int n = 0; n<BIT; n++){
             amp[n] = (amp[n]*line + spectrum->getAmp(points[n].first, points[n].second))/(line+1);
             hertzScale[n] = int(spectrum->getFreq(points[n].second));
             
@@ -353,14 +324,15 @@ void ofApp::drawVolumeLine(){
             //                        }
             //            ofRect(n*1,0 + 532, 1, amp[n]*10.0);
             
-//            ofDrawRectangle( 0, n * 1, amp[n] * 100.0, 1 );
-//            ofDrawRectangle( 0, n * 1, amp[n] * 100.0, 1 );
+            //            ofDrawRectangle( 0, n * 1, amp[n] * 100.0, 1 );
+            //            ofDrawRectangle( 0, n * 1, amp[n] * 100.0, 1 );
             
             float _levelSize = 120;
             ofDrawLine( 0, n * 1, amp[n] * _levelSize, n * 1 );
             ofDrawLine( 0, n * 1, -amp[n] * _levelSize, n * 1 );
             
         }
+        
         
     }
     
@@ -398,7 +370,7 @@ void ofApp::processingImage(){
     int _r, _g, _b;
     
     int _length = errorLength;
-
+    
     for (int j=0; j<captureH; j++) {
         for (int i=0; i<captureW-_length; i+=_length) {
             int _index = i + j * (captureW);
@@ -442,30 +414,30 @@ void ofApp::processingImage(){
 
 
 //--------------------------------------------------------------
-void ofApp::pointDraw(){
-    
-    //    ofPushMatrix();
-    //    ofPushStyle();
-    //
-    //    glPointSize(1);
-    //
-    //    ofSetColor(255);
-    //    mesh.drawVertices();
-    //
-    //    ofPopStyle();
-    //    ofPopMatrix();
-    
-}
+//void ofApp::pointDraw(){
+
+//    ofPushMatrix();
+//    ofPushStyle();
+//
+//    glPointSize(1);
+//
+//    ofSetColor(255);
+//    mesh.drawVertices();
+//
+//    ofPopStyle();
+//    ofPopMatrix();
+
+//}
 
 
 
 //--------------------------------------------------------------
 //void ofApp::zDepthShapeDraw(){
-//    
+//
 //    ofPushMatrix();
-//    
+//
 //    ofPushStyle();
-//    
+//
 //    for (int i=0; i<mesh.getNumVertices(); i++) {
 //        float _z = mesh.getVertex(i).z;
 //        ofSetColor(255, 30);
@@ -473,11 +445,11 @@ void ofApp::pointDraw(){
 //            ofDrawCircle(mesh.getVertex(i).x, mesh.getVertex(i).y, mesh.getVertex(i).z, mesh.getVertex(i).z*0.05);
 //        }
 //    }
-//    
+//
 //    ofPopStyle();
-//    
+//
 //    ofPopMatrix();
-//    
+//
 //}
 
 
@@ -519,8 +491,8 @@ void ofApp::audioRequested (float * output, int bufferSize, int nChannels){
     
     if(spectrum->playing){
         
-//        float *ptr = output;
-
+        //        float *ptr = output;
+        
         for (int i = 0; i < bufferSize; i++){
             
             wave = 0.0;
@@ -546,22 +518,22 @@ void ofApp::audioRequested (float * output, int bufferSize, int nChannels){
             
             output[i*nChannels    ] = wave * volume;
             output[i*nChannels + 1] = wave * volume;
-//            outp[i] = wave;
-
-//            *ptr++ = wave * volume;
-
+            //            outp[i] = wave;
+            
+            //            *ptr++ = wave * volume;
+            
         }
-
-
+        
+        
     } else {
-//        for (int i = 0; i < bufferSize; i++){
-//            output[i*nChannels    ] = 0;
-//            output[i*nChannels + 1] = 0;
-//            outp[i] = 0;
-//        }
+        //        for (int i = 0; i < bufferSize; i++){
+        //            output[i*nChannels    ] = 0;
+        //            output[i*nChannels + 1] = 0;
+        //            outp[i] = 0;
+        //        }
     }
     
-
+    
     
 }
 
@@ -573,12 +545,12 @@ void ofApp::audioReceived(float * input, int bufferSize, int nChannels){
 
 //--------------------------------------------------------------
 //void ofApp::openFile(string URL){
-//    
+//
 //    string _output;
 //    spectrum->pause();
 //    if(URL==""){
 //        ofFileDialogResult result = ofSystemLoadDialog("Open File", false, "");
-//        
+//
 //        if(result.bSuccess){
 //            URL = result.filePath;
 //            _output = "URL to open: \n "+URL;
@@ -591,7 +563,7 @@ void ofApp::audioReceived(float * input, int bufferSize, int nChannels){
 //            _output = "OPEN canceled. ";
 //        }
 //    }
-//    
+//
 //}
 
 
@@ -612,22 +584,22 @@ void ofApp::guiSetting(){
     gui.add(frameRate.setup("FrameRate", " "));
     //    gui.add(modelSelect.setup("Model Select"));
     gui.add(speed.setup("speed", 1.0, 0.0, 10.0) );
-//    gui.add(openf.setup( "Open Picture", false) );
+    //    gui.add(openf.setup( "Open Picture", false) );
     gui.add(maxHz.setup( "Spectrum Max HZ", 5000, 300.0, 8000.0) );
     gui.add(minHz.setup( "Spectrum Min HZ", 50, 1.0, 200.0) );
     gui.add(lineSize.setup( "LINE", 5.0, 0.0, 20.0) );
-//    gui.add(reset.setup("Reset!", ""));
-//    gui.add(imageFormat.setup("Image Format Quad/Land", true) );
+    //    gui.add(reset.setup("Reset!", ""));
+    //    gui.add(imageFormat.setup("Image Format Quad/Land", true) );
     gui.add(returnZero.setup("Return Zero"));
-//    gui.add(pointView.setup("Point Cloud", true));
-//    gui.add(maxZDepth.setup( "Max zDepth", 1.0, 0.0, 10.0) );
-//    gui.add(minZDepth.setup( "Min zDepth", 0.0, -10.0, 10.0) );
-//    gui.add(zDepthShape.setup("zDepth Shape", false));
-//    gui.add(brightness.setup("PointBright", 120, 0, 255));
+    //    gui.add(pointView.setup("Point Cloud", true));
+    //    gui.add(maxZDepth.setup( "Max zDepth", 1.0, 0.0, 10.0) );
+    //    gui.add(minZDepth.setup( "Min zDepth", 0.0, -10.0, 10.0) );
+    //    gui.add(zDepthShape.setup("zDepth Shape", false));
+    //    gui.add(brightness.setup("PointBright", 120, 0, 255));
     gui.add(imageProcessView.setup("ImageProcess", false));
     gui.add(errorMath.setup("error", true));
     gui.add(errorLength.setup("ErrorLength", 20, 2, 50));
-    gui.add(fadeLength.setup("FadeLength", 0, 0, 0.01));
+    gui.add(fadeLength.setup("FadeLength", 0, 0, 0.1));
     gui.add(volume.setup("Volume", 5, 0, 10));
     
 }
@@ -652,13 +624,13 @@ void ofApp::keyPressed(int key){
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
     
-
-    switch (key) {
     
+    switch (key) {
+            
         case 'c':
             imageCapture();
             break;
-
+            
         case 'p':
             spectrum->loadImageSpectrum(captureProcessImage);
             break;
@@ -675,7 +647,7 @@ void ofApp::keyReleased(int key){
                 cout << "play";
             }
             break;
-        
+            
         case 'r':
             playerHead->x1 = ofRandom(ofGetWidth());
             playerHead->x2 = playerHead->x1;
@@ -690,30 +662,30 @@ void ofApp::keyReleased(int key){
             
     }
     
-
+    
     
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y){
-
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
-
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
- 
+    
     imageCapture();
-
+    
 }
 
 //--------------------------------------------------------------

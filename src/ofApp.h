@@ -91,7 +91,7 @@ public:
     ofLight	light;
     ofEasyCam cam;
     
-    void pointDraw();
+//    void pointDraw();
     int numPoint;
 
     int modelIndex;
