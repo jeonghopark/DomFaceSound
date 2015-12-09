@@ -7,7 +7,7 @@ PlayerHead::PlayerHead(){
 	y1 = 0;
 	x2 = 0;
 	y2 = 512;
-	
+
 	dragging1=false;
 	dragging2=false;
 }
@@ -37,7 +37,7 @@ void PlayerHead::mousePressed(int x, int y, int button) {
 	//if(e.x>x-10 and e.x<x+10){
 	//	dragging = true;
 	//}
-	
+
 	if(distance(x,x1,y,y1)<0){
 		dragging1 = true;
 	}
@@ -69,7 +69,7 @@ void PlayerHead::mouseDragged(int x, int y, int button) {
 		}else {
 			x2 = fmin(x, 1280);
 		}
-		
+
 		if (y<0) {
 			y2 = fmax(y, 0);
 		}else {
@@ -86,9 +86,9 @@ vector< pair <float,float > > PlayerHead::getPoints(int bit){
 	for (int i = 0; i<bit; i++) {
 		pair <float,float > point;
 		float _X = (float)(x2-x1)/(float)bit * (float)i;
-		
+
 		float _Y = (float)(y2-y1)/(float)bit * (float)i;
-		
+
 		_X += x1;
 		_Y += y1;
 		point.first = _X;
@@ -115,7 +115,7 @@ int fmin (int a,int b){
 		return b;
 	}else {
 		return a;
-	}	
+	}
 }
 
 int PlayerHead::distance(int _x1, int _x2, int _y1, int _y2){
