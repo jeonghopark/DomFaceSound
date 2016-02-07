@@ -33,6 +33,10 @@ public:
     void audioRequested (float * input, int bufferSize, int nChannels);
     void audioReceived (float * input, int bufferSize, int nChannels);
 
+    void audioOut(ofSoundBuffer & buffer);
+    ofSoundStream soundStream;
+
+    
 //    void openFile(string URL="");
 
     float line;
