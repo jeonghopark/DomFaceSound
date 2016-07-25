@@ -31,7 +31,7 @@ void ofApp::setup(){
     screenHeight = processScreenHeight;
     
     
-    figureModel.loadModel("mesh04/mesh04.obj", true);
+    figureModel.loadModel("mesh04/mesh04.obj", false);
     figureModel.setScaleNormalization(false);
     
     mesh.setMode(OF_PRIMITIVE_POINTS);
@@ -145,6 +145,14 @@ void ofApp::errorLengthChanged(int & _m){
     
     imageCapture();
     
+}
+
+
+
+//--------------------------------------------------------------
+void ofApp::exit(){
+    
+    std::exit(0);
 }
 
 
